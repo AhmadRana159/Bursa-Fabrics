@@ -246,12 +246,15 @@ function searchCustomer() {
 function populateSelectDropdown(list) {
     currentSearchResults = list;
     let select = document.getElementById('customerSelect');
-    select.innerHTML = '<option value="">-- نام منتخب کریں --</option>';
+    select.innerHTML = '<option value="">-- گاہک کا نام منتخب کریں --</option>';
 
     list.forEach((item, index) => {
         let opt = document.createElement('option');
         opt.value = index;
-        opt.textContent = item.name + " (بکنگ: " + (item.bookingDate ? formatDate(item.bookingDate) : 'نامعلوم') + ")";
+        // یہاں ہم نے یقینی بنایا ہے کہ ڈراپ ڈاؤن میں فائر بیس کی Key کی بجائے گاہک کا اصل نام (item.name) نظر آئے
+        let custName = item.name ? item.name : "نامعلوم نام";
+        let bDate = item.bookingDate ? formatDate(item.bookingDate) : 'تاريخ نہیں';
+        opt.textContent = custName + " (بکنگ تاریخ: " + bDate + ")";
         select.appendChild(opt);
     });
 
