@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BURSA CLOTH AND TAILOR</title>
     
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <!-- Firebase v8.10.1 (Stable & Error-Free CDN) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #eef2f5; padding: 15px; margin: 0; }
@@ -97,6 +97,7 @@
         <button type="button" class="btn no-print" style="background: #25D366;" onclick="sendWhatsApp()">واٹس ایپ پر میسج بھیجیں</button>
     </form>
 </div>
+
 <script>
 let currentSearchResults = [];
 
@@ -110,10 +111,8 @@ const firebaseConfig = {
     appId: "1:293685540433:web:29a3cdf2c01ddf2e486a70"
 };
 
-try {
-    firebase.initializeApp(firebaseConfig);
-} catch (e) {}
-
+// Initialize Firebase v8
+firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 function cleanNumber(num) {
@@ -193,13 +192,11 @@ function saveData() {
     let ref = db.ref('customers/' + cleanPh);
 
     if (recordId) {
-        // اگر پہلے سے سلیکٹ شدہ ریکارڈ ہے تو اسی آئی ڈی پر اپ ڈیٹ کر دو
         ref.child(recordId).set(formData).then(() => {
             alert("ریکارڈ کامیابی سے اپ ڈیٹ ہو گیا!");
             resetForm();
         });
     } else {
-        // ہمیشہ نئی انٹری کے لیے push() استعمال ہوگا تاکہ ایک ہی نمبر پر جتنے مرضی نام ہوں الگ محفوظ ہوں
         let newRef = ref.push();
         newRef.set(formData).then(() => {
             alert("نیا ریکارڈ کامیابی سے محفوظ ہو گیا!");
@@ -230,7 +227,7 @@ function searchCustomer() {
             let dataList = [];
             snapshot.forEach((childSnapshot) => {
                 let item = childSnapshot.val();
-                item.firebaseId = childSnapshot.key; // ہر ریکارڈ کی اپنی یونیک آئی ڈی
+                item.firebaseId = childSnapshot.key;
                 dataList.push(item);
             });
             populateSelectDropdown(dataList);
@@ -238,6 +235,11 @@ function searchCustomer() {
             alert("اس نمبر کا کوئی ریکارڈ نہیں ملا!");
             document.getElementById('searchResultsDiv').style.display = 'none';
         }
+    })
+    .catch((error) => {
+        searchBtn.innerText = "تلاش کریں";
+        searchBtn.disabled = false;
+        alert("تلاش میں خرابی: " + error.message);
     });
 }
 
@@ -249,7 +251,6 @@ function populateSelectDropdown(list) {
     list.forEach((item, index) => {
         let opt = document.createElement('option');
         opt.value = index;
-        // یہاں ڈراپ ڈاؤن میں نام اور بکنگ کی تاریخ صاف نظر آئے گی
         opt.textContent = item.name + " (بکنگ: " + (item.bookingDate ? formatDate(item.bookingDate) : 'نامعلوم') + ")";
         select.appendChild(opt);
     });
@@ -294,3 +295,6 @@ function sendWhatsApp() {
     window.open(`https://wa.me/${fullPhone}?text=${encodeURIComponent(msg)}`, "_blank");
 }
 </script>
+
+</body>
+</html>
