@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BURSA CLOTH AND TAILOR</title>
+    
+    <!-- Firebase SDK (Version 10 Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: #eef2f5; 
+            padding: 15px; 
+            margin: 0; 
+        }
+
+        .receipt { 
+            max-width: 1100px; 
+            width: 95%; 
+            margin: 20px auto; 
+            background: #ffffff; 
+            padding: 25px; 
+            border: 1px solid #dcdcdc; 
+            border-radius: 8px; 
+            box-sizing: border-box;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .header { 
+            text-align: center; 
+            border-bottom: 2px dashed #333; 
+            padding-bottom: 10px; 
+            margin-bottom: 15px; 
+        }
+
+        .header h3 {
+            margin: 0 0 5px 0;
+            font-size: 22px;
+            color: #2c3e50;
+        }
+
+        .form-grid { 
+            display: flex; 
+            flex-wrap: wrap; 
+            justify-content: space-between; 
+        }
+
+        .row { 
+            width: 48%; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 10px; 
+            font-size: 14px; 
+        }
+
+        .row label { 
+            font-weight: bold; 
+            width: 42%; 
+            color: #34495e;
+        }
+
+        .row input, .row select { 
+            width: 55%; 
+            padding: 7px 10px; 
+            border: 1px solid #ccc; 
+            border-radius: 4px; 
+            box-sizing: border-box;
+            font-size: 14px;
+            background-color: #fafafa;
+        }
+
+        .row input:focus, .row select:focus {
+            border-color: #3498db;
+            outline: none;
+            background-color: #fff;
+        }
+
+        .section-title { 
+            width: 100%; 
+            background: #34495e; 
+            color: #ffffff;
+            font-weight: bold; 
+            text-align: center; 
+            padding: 8px; 
+            margin: 15px 0 12px 0; 
+            font-size: 15px; 
+            border-radius: 4px;
+        }
+
+        .btn { 
+            width: 100%; 
+            padding: 12px; 
+            background: #27ae60; 
+            color: white; 
+            border: none; 
+            font-size: 16px; 
+            font-weight: bold;
+            cursor: pointer; 
+            margin-top: 10px; 
+            border-radius: 5px; 
+            transition: background 0.2s;
+        }
+
+        .btn:hover { opacity: 0.9; }
+
+        @media (max-width: 768px) {
+            .receipt { max-width: 100%; padding: 12px; margin: 0 auto; }
+            .row { width: 100%; margin-bottom: 8px; }
+            .row label { width: 40%; font-size: 13px; }
+            .row input, .row select { width: 58%; font-size: 13px; padding: 5px; }
+        }
+
+        @media print { 
+            .btn, .no-print { display: none !important; } 
+            .receipt { border: none; width: 100%; box-shadow: none; padding: 0; } 
+        }
+    </style>
+</head>
+<body>
+
+<div class="receipt">
+    <div class="header">
+        <h3>BURSA CLOTH AND TAILOR</h3>
+        <p style="margin: 0; font-weight: bold; color: #555;">03451530130</p>
+    </div>
+
+    <!-- سرچ بار -->
+    <div class="no-print" style="background: #eef2f3; padding: 12px; margin-bottom: 15px; border-radius: 6px; text-align: center; border: 1px solid #d5dbdb;">
+        <input type="text" id="searchPhone" placeholder="گاہک کا فون نمبر..." style="width: 45%; padding: 7px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;">
+        <button type="button" id="searchBtn" onclick="searchCustomer()" style="padding: 7px 15px; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold;">تلاش کریں</button>
+        
+        <div id="searchResultsDiv" style="display: none; margin-top: 10px;">
+            <label style="font-weight: bold; font-size: 13px;">نام منتخب کریں: </label>
+            <select id="customerSelect" onchange="onCustomerSelected()" style="width: 60%; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;">
+            </select>
+        </div>
+    </div>
+
+    <!-- فارم -->
+    <form id="tailorForm" class="form-grid">
+        <div class="row"><label>نام:</label><input type="text" id="name"></div>
+        <div class="row"><label>فون نمبر:</label><input type="text" id="phone"></div>
+        <div class="row"><label>بکنگ تاریخ:</label><input type="date" id="bookingDate"></div>
+        <div class="row"><label>واپسی تاریخ:</label><input type="date" id="returnDate"></div>
+        <div class="row"><label>سلائی:</label><select id="stitching"><option value="سنگل">سنگل</option><option value="ڈبل">ڈبل</option></select></div>
+        <div class="row">
+            <label>اسٹیٹس:</label>
+            <select id="suitStatus">
+                <option value="جاری">جاری ہے (In Progress)</option>
+                <option value="مکمل">مکمل ہو گیا (Completed)</option>
+            </select>
+        </div>
+
+        <div class="section-title">قمیض کی پیمائش</div>
+        <div class="row"><label>لمبائی:</label><input type="text" id="shirtLen"></div>
+        <div class="row"><label>کہنی:</label><input type="text" id="kuhni"></div>
+        <div class="row"><label>بازو:</label><input type="text" id="bazu"></div> 
+        <div class="row"><label>سامنے جیب:</label><select id="frontPocket"><option value="ہاں">ہاں</option><option value="نہیں">نہیں</option></select></div>
+        <div class="row"><label>تیرا:</label><input type="text" id="teera"></div> 
+        <div class="row"><label>کندھا:</label><select id="kondha"><option value="نارمل">نارمل</option><option value="ڈیزائن">ڈیزائن</option></select></div>     
+        <div class="row"><label>چھاتی:</label><input type="text" id="chest"></div>
+        <div class="row"><label>سائیڈ جیب:</label><select id="sidePocket"><option value="1">1</option><option value="2">2</option></select></div>
+        <div class="row"><label>کمر:</label><input type="text" id="kamar"></div>   
+        <div class="row"><label>دامن قسم:</label><select id="damanType"><option value="گول">گول</option><option value="چورس">چورس</option></select></div>
+        <div class="row"><label>دامن سائيز:</label><input type="text" id="daman"></div> 
+        <div class="row"><label>کالر نوک:</label><select id="collarNok"><option value="فرینچ">فرینچ</option><option value="گول">گول</option></select></div>        
+        <div class="row"><label>گلا:</label><input type="text" id="gala"></div>
+        <div class="row"><label>بین پٹی:</label><select id="banPatti"><option value="نارمل">نارمل</option><option value="ڈیزائن">ڈیزائن</option></select></div>
+        <div class="row"><label>گلا قسم:</label><select id="galaType"><option value="بائن">بائن</option><option value="کالر">کالر</option></select></div>
+        <div class="row"><label>بین:</label><select id="ban"><option value="سادہ">سادہ</option><option value="ڈیزائن">ڈیزائن</option></select></div>
+        <div class="row"><label>موڈا:</label><input type="text" id="moda"></div>
+        <div class="row"><label>کف ڈیزائن:</label><select id="cuffDesign"><option value="گول">گول</option><option value="چورس">چورس</option></select></div>
+        <div class="row"><label>کف سائز:</label><input type="text" id="cuff"></div>        
+        <div class="row"><label>تختی:</label><input type="text" id="takhti"></div>
+
+        <div class="section-title">شلوار کی پیمائش</div>
+        <div class="row"><label>شلوار لمبائی:</label><input type="text" id="shalwarLen"></div>
+        <div class="row"><label>جالی:</label><select id="jaali"><option value="ہاں">ہاں</option><option value="نہیں">نہیں</option></select></div>
+        <div class="row"><label>پانچہ:</label><input type="text" id="panja"></div>
+        <div class="row"><label>شلوار جیب:</label><select id="shalwarPocket"><option value="ہاں">ہاں</option><option value="نہیں">نہیں</option></select></div>
+        <div class="row"><label>گھیرا:</label><input type="text" id="ghera"></div>
+        <div class="row"><label>آسن:</label><input type="text" id="asan"></div>
+        <div class="row"><label>نوٹ:</label><input type="text" id="notes"></div>
+
+        <button type="button" class="btn" style="background: #3498db;" onclick="saveData()">ڈیٹا محفوظ کریں / اپ ڈیٹ کریں</button>
+        
+        <button type="button" class="btn no-print" onclick="window.print()">پرنٹ کریں</button>
+        <button type="button" class="btn no-print" style="background: #25D366;" onclick="sendWhatsApp()">واٹس ایپ پر میسج بھیجیں</button>
+    </form>
+</div>
+
+<script>
+// 1. Firebase Credentials (اپنے فائر بیس پروجیکٹ کی کیز یہاں لگائیں)
+const firebaseConfig = {
+    apiKey: "AIzaSyDgbMDgt40YlJ7X4xdkX6uhS0CFLNBOTJs",
+    authDomain: "bursa-fabrics.firebaseapp.com",
+databaseURL: "https://bursa-fabrics-default-rtdb.firebaseio.com", 
+    projectId: "bursa-fabrics",
+    storageBucket: "bursa-fabrics.firebasestorage.app",
+    messagingSenderId: "293685540433",
+    appId: "1:293685540433:web:29a3cdf2c01ddf2e486a70"
+  };
+
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// Firebase Offline Persistence (انٹرنیٹ نہ ہونے پر بھی ڈیٹا سیو ہوگا)
+db.ref().keepSynced(true);
+
+let currentSearchResults = [];
+
+function cleanNumber(num) {
+    if (!num) return '';
+    let str = String(num).replace(/[^0-9]/g, '');
+    return str.length >= 10 ? str.slice(-10) : str;
+}
+
+function formatDate(dateStr) {
+    if (!dateStr) return '';
+    let d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    return d.toISOString().split('T')[0];
+}
+
+function resetForm() {
+    document.getElementById('tailorForm').reset();
+    document.getElementById('searchPhone').value = '';
+    document.getElementById('searchResultsDiv').style.display = 'none';
+    document.getElementById('customerSelect').innerHTML = '';
+    currentSearchResults = [];
+}
+
+// Data Save / Update Function
+function saveData() {
+    let name = document.getElementById('name').value.trim();
+    let phone = document.getElementById('phone').value.trim();
+
+    if (!name || !phone) {
+        alert("براہ کرم گاہک کا نام اور فون نمبر دونوں درج کریں!");
+        return;
+    }
+
+    let cleanPh = cleanNumber(phone);
+
+    let formData = {
+        name: name,
+        phone: phone,
+        cleanPhone: cleanPh,
+        bookingDate: document.getElementById('bookingDate').value,
+        returnDate: document.getElementById('returnDate').value,
+        stitching: document.getElementById('stitching').value,
+        suitStatus: document.getElementById('suitStatus').value,
+        shirtLen: document.getElementById('shirtLen').value,
+        kuhni: document.getElementById('kuhni').value,
+        bazu: document.getElementById('bazu').value,
+        frontPocket: document.getElementById('frontPocket').value,
+        teera: document.getElementById('teera').value,
+        kondha: document.getElementById('kondha').value,
+        chest: document.getElementById('chest').value,
+        sidePocket: document.getElementById('sidePocket').value,
+        kamar: document.getElementById('kamar').value,
+        damanType: document.getElementById('damanType').value,
+        daman: document.getElementById('daman').value,
+        collarNok: document.getElementById('collarNok').value,
+        gala: document.getElementById('gala').value,
+        banPatti: document.getElementById('banPatti').value,
+        galaType: document.getElementById('galaType').value,
+        ban: document.getElementById('ban').value,
+        moda: document.getElementById('moda').value,
+        cuffDesign: document.getElementById('cuffDesign').value,
+        cuff: document.getElementById('cuff').value,
+        takhti: document.getElementById('takhti').value,
+        shalwarLen: document.getElementById('shalwarLen').value,
+        jaali: document.getElementById('jaali').value,
+        panja: document.getElementById('panja').value,
+        shalwarPocket: document.getElementById('shalwarPocket').value,
+        ghera: document.getElementById('ghera').value,
+        asan: document.getElementById('asan').value,
+        notes: document.getElementById('notes').value
+    };
+
+    // Firebase database me phone number ko ID بنا کر محفوظ کر رہے ہیں
+    db.ref('customers/' + cleanPh).set(formData)
+    .then(() => {
+        alert("ڈیٹا کامیابی سے اپ ڈیٹ / محفوظ ہو گیا!");
+        resetForm();
+    })
+    .catch((error) => {
+        alert("غلطی: " + error.message);
+    });
+}
+
+// Search Customer Function
+function searchCustomer() {
+    let searchPhone = cleanNumber(document.getElementById('searchPhone').value);
+    let searchBtn = document.getElementById('searchBtn');
+
+    if (!searchPhone) {
+        alert("براہ کرم تلاش کرنے کے لیے فون نمبر درج کریں!");
+        return;
+    }
+
+    searchBtn.innerText = "تلاش جاری ہے...";
+    searchBtn.disabled = true;
+
+    db.ref('customers/' + searchPhone).once('value')
+    .then((snapshot) => {
+        searchBtn.innerText = "تلاش کریں";
+        searchBtn.disabled = false;
+
+        if (snapshot.exists()) {
+            let customerData = snapshot.val();
+            populateSelectDropdown([customerData]);
+        } else {
+            alert("اس نمبر کا کوئی ریکارڈ نہیں ملا!");
+            document.getElementById('searchResultsDiv').style.display = 'none';
+        }
+    })
+    .catch((error) => {
+        searchBtn.innerText = "تلاش کریں";
+        searchBtn.disabled = false;
+        alert("تلاش کرنے میں مسئلہ آیا: " + error.message);
+    });
+}
+
+function populateSelectDropdown(list) {
+    currentSearchResults = list;
+    let select = document.getElementById('customerSelect');
+    select.innerHTML = '<option value="">-- نام منتخب کریں --</option>';
+
+    list.forEach((item, index) => {
+        let opt = document.createElement('option');
+        opt.value = index;
+        opt.textContent = item.name + " (" + (item.bookingDate ? formatDate(item.bookingDate) : 'تاریخ دستیاب نہیں') + ")";
+        select.appendChild(opt);
+    });
+
+    document.getElementById('searchResultsDiv').style.display = 'block';
+
+    if (list.length === 1) {
+        select.value = 0;
+        onCustomerSelected();
+    }
+}
+
+function onCustomerSelected() {
+    let index = document.getElementById('customerSelect').value;
+    if (index !== "") {
+        let selectedCustomer = currentSearchResults[index];
+        fillFormData(selectedCustomer);
+    }
+}
+
+function fillFormData(data) {
+    for (let key in data) {
+        let element = document.getElementById(key);
+        if (element) {
+            if (element.type === 'date') {
+                element.value = formatDate(data[key]);
+            } else {
+                element.value = data[key] || '';
+            }
+        }
+    }
+}
+
+function sendWhatsApp() {
+    let name = document.getElementById('name').value;
+    let phone = document.getElementById('phone').value.trim();
+    let status = document.getElementById('suitStatus').value;
+
+    if (!phone) { 
+        alert("براہ کرم گاہک کا فون نمبر درج کریں!"); 
+        return; 
+    }
+
+    let cleanPh = cleanNumber(phone);
+    let fullPhone = '92' + cleanPh;
+
+    let msg = status === "مکمل" 
+        ? "السلام علیکم " + name + " صاحب، آپ کا سوٹ سلائی ہو کر مکمل ہو چکا ہے، آپ اسے برصہ کلاتھ اینڈ ٹیلر سے وصول کر سکتے ہیں۔"
+        : "السلام علیکم " + name + " صاحب، آپ کے سوٹ کی سلائی جاری ہے۔";
+
+    window.open("https://wa.me/" + fullPhone + "?text=" + encodeURIComponent(msg), "_blank");
+}
+</script>
+
+</body>
+</html>
