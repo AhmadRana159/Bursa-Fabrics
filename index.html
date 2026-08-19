@@ -97,7 +97,6 @@
         <button type="button" class="btn no-print" style="background: #25D366;" onclick="sendWhatsApp()">واٹس ایپ پر میسج بھیجیں</button>
     </form>
 </div>
-
 <script>
 let currentSearchResults = [];
 
@@ -194,39 +193,17 @@ function saveData() {
     let ref = db.ref('customers/' + cleanPh);
 
     if (recordId) {
-        // اگر سرچ کر کے پرانا سلیکٹ کیا تھا تو اسی کو اپ ڈیٹ کرے گا
+        // اگر پہلے سے سلیکٹ شدہ ریکارڈ ہے تو اسی آئی ڈی پر اپ ڈیٹ کر دو
         ref.child(recordId).set(formData).then(() => {
             alert("ریکارڈ کامیابی سے اپ ڈیٹ ہو گیا!");
             resetForm();
         });
     } else {
-        // چیک کرے گا کہ کیا اس نمبر پر پہلے سے کوئی ڈیٹا موجود ہے؟
-        ref.once('value').then((snapshot) => {
-            let existingKey = null;
-            if (snapshot.exists()) {
-                snapshot.forEach((childSnap) => {
-                    let existingData = childSnap.val();
-                    // اگر نام بھی بالکل سیم ہوا تو پرانے کو اپ ڈیٹ کر دے گا
-                    if (existingData.name.trim().toLowerCase() === name.toLowerCase()) {
-                        existingKey = childSnap.key;
-                    }
-                });
-            }
-
-            if (existingKey) {
-                // اگر سیم نام مل گیا تو اپ ڈیٹ کر دو
-                ref.child(existingKey).set(formData).then(() => {
-                    alert("اس نام اور نمبر کا ریکارڈ پہلے سے موجود تھا، لہذا ڈیٹا اپ ڈیٹ کر دیا گیا!");
-                    resetForm();
-                });
-            } else {
-                // اگر نمبر سیم ہے لیکن نام الگ ہے تو نئی انٹری (نیا ریکارڈ) بنا دو
-                let newRef = ref.push();
-                newRef.set(formData).then(() => {
-                    alert("نیا ریکارڈ کامیابی سے محفوظ ہو گیا!");
-                    resetForm();
-                });
-            }
+        // ہمیشہ نئی انٹری کے لیے push() استعمال ہوگا تاکہ ایک ہی نمبر پر جتنے مرضی نام ہوں الگ محفوظ ہوں
+        let newRef = ref.push();
+        newRef.set(formData).then(() => {
+            alert("نیا ریکارڈ کامیابی سے محفوظ ہو گیا!");
+            resetForm();
         });
     }
 }
@@ -253,7 +230,7 @@ function searchCustomer() {
             let dataList = [];
             snapshot.forEach((childSnapshot) => {
                 let item = childSnapshot.val();
-                item.firebaseId = childSnapshot.key;
+                item.firebaseId = childSnapshot.key; // ہر ریکارڈ کی اپنی یونیک آئی ڈی
                 dataList.push(item);
             });
             populateSelectDropdown(dataList);
@@ -272,7 +249,8 @@ function populateSelectDropdown(list) {
     list.forEach((item, index) => {
         let opt = document.createElement('option');
         opt.value = index;
-        opt.textContent = item.name + " (" + (item.bookingDate ? formatDate(item.bookingDate) : 'تاريخ نہیں') + ")";
+        // یہاں ڈراپ ڈاؤن میں نام اور بکنگ کی تاریخ صاف نظر آئے گی
+        opt.textContent = item.name + " (بکنگ: " + (item.bookingDate ? formatDate(item.bookingDate) : 'نامعلوم') + ")";
         select.appendChild(opt);
     });
 
@@ -316,6 +294,3 @@ function sendWhatsApp() {
     window.open(`https://wa.me/${fullPhone}?text=${encodeURIComponent(msg)}`, "_blank");
 }
 </script>
-
-</body>
-</html>
