@@ -10,55 +10,85 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <style>
-        * { 
-            box-sizing: border-box; 
-            -webkit-tap-highlight-color: rgba(0,0,0,0.1); /* ٹچ زون فعال کرنے کے لیے */
-        }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #eef2f5; padding: 10px; margin: 0; }
-        .receipt { max-width: 1100px; width: 100%; margin: 10px auto; background: #ffffff; padding: 15px; border: 1px solid #dcdcdc; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #eef2f5; padding: 15px; margin: 0; }
+        .receipt { max-width: 1100px; width: 95%; margin: 20px auto; background: #ffffff; padding: 25px; border: 1px solid #dcdcdc; border-radius: 8px; box-sizing: border-box; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .header { text-align: center; border-bottom: 2px dashed #333; padding-bottom: 10px; margin-bottom: 15px; }
         .header h3 { margin: 0 0 5px 0; font-size: 22px; color: #2c3e50; }
         .form-grid { display: flex; flex-wrap: wrap; justify-content: space-between; }
-        .row { width: 48%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 15px; }
-        .row label { font-weight: bold; width: 40%; color: #34495e; }
-        
-        /* کی بورڈ فوراً کھولنے کے لیے خاص CSS قوانین */
-        input, select, textarea { 
-            width: 58%; 
-            padding: 10px; 
-            border: 1px solid #ccc; 
-            border-radius: 4px; 
-            font-size: 16px !important; /* 16px سے کم پر اینڈرائیڈ/آئی فون کی بورڈ بلاک کر دیتے ہیں */
-            background-color: #fafafa;
-            pointer-events: auto !important;
-            -webkit-user-select: text !important;
-            user-select: text !important;
-            touch-action: manipulation !important;
-        }
-        
+        .row { width: 48%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 14px; }
+        .row label { font-weight: bold; width: 42%; color: #34495e; }
+        .row input, .row select { width: 55%; padding: 7px 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; background-color: #fafafa; }
         .section-title { width: 100%; background: #34495e; color: #ffffff; font-weight: bold; text-align: center; padding: 8px; margin: 15px 0 12px 0; font-size: 15px; border-radius: 4px; }
         .btn { width: 100%; padding: 12px; background: #27ae60; color: white; border: none; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; border-radius: 5px; }
         
         @media (max-width: 768px) { 
-            .receipt { padding: 10px; margin: 0 auto; } 
-            .row { width: 100%; margin-bottom: 10px; } 
-            .row label { width: 35%; font-size: 14px; } 
-            .row input, .row select { width: 63%; } 
+            .receipt { max-width: 100%; padding: 12px; margin: 0 auto; } 
+            .row { width: 100%; margin-bottom: 8px; } 
+            .row label { width: 40%; font-size: 13px; } 
+            .row input, .row select { width: 58%; font-size: 13px; padding: 5px; } 
         }
 
+        /* ---------------- پرنٹنگ کی مخصوص سیٹنگ ---------------- */
         @media print { 
-            @page { size: A5 portrait; margin: 5mm; }
-            body { background: #fff; padding: 0; margin: 0; -webkit-print-color-adjust: exact; }
-            .btn, .no-print { display: none !important; } 
-            .receipt { border: none !important; width: 100% !important; max-width: 100% !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; } 
-            .header { padding-bottom: 5px; margin-bottom: 8px; }
-            .header h3 { font-size: 18px; }
-            .section-title { padding: 3px; margin: 6px 0 6px 0; font-size: 12px; background: #34495e !important; color: #fff !important; }
-            .form-grid { display: flex !important; flex-wrap: wrap !important; }
-            .row { width: 48% !important; margin-bottom: 4px !important; font-size: 11px !important; } 
-            .row.empty-field { display: none !important; }
-            .row label { width: 45% !important; font-size: 11px !important; } 
-            .row input, .row select { width: 52% !important; font-size: 11px !important; padding: 2px 4px !important; border: 1px solid #aaa !important; background: transparent !important; }
+            @page {
+                size: A5 portrait; /* ہاف پیج سائز */
+                margin: 5mm; 
+            }
+            body { 
+                background: #fff; 
+                padding: 0; 
+                margin: 0; 
+                -webkit-print-color-adjust: exact; 
+            }
+            .btn, .no-print { 
+                display: none !important; 
+            } 
+            .receipt { 
+                border: none !important; 
+                width: 100% !important; 
+                max-width: 100% !important; 
+                box-shadow: none !important; 
+                padding: 0 !important; 
+                margin: 0 !important; 
+            } 
+            .header {
+                padding-bottom: 5px;
+                margin-bottom: 8px;
+            }
+            .header h3 {
+                font-size: 18px;
+            }
+            .section-title {
+                padding: 3px;
+                margin: 6px 0 6px 0;
+                font-size: 12px;
+                background: #34495e !important;
+                color: #fff !important;
+            }
+            .form-grid {
+                display: flex !important;
+                flex-wrap: wrap !important;
+            }
+            .row { 
+                width: 48% !important; 
+                margin-bottom: 4px !important; 
+                font-size: 11px !important; 
+            } 
+            /* جو خانے خالی ہیں ان کو پرنٹ میں غائب کرنے کا رول */
+            .row.empty-field {
+                display: none !important;
+            }
+            .row label { 
+                width: 45% !important; 
+                font-size: 11px !important; 
+            } 
+            .row input, .row select { 
+                width: 52% !important; 
+                font-size: 11px !important; 
+                padding: 2px 4px !important; 
+                border: 1px solid #aaa !important; 
+                background: transparent !important;
+            }
         }
     </style>
 </head>
@@ -72,12 +102,12 @@
 
     <!-- سرچ بار -->
     <div class="no-print" style="background: #eef2f3; padding: 12px; margin-bottom: 15px; border-radius: 6px; text-align: center; border: 1px solid #d5dbdb;">
-        <input type="text" id="searchPhone" placeholder="گاہک کا فون نمبر..." style="width: 45%;">
-        <button type="button" id="searchBtn" onclick="searchCustomer()" style="padding: 10px 15px; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold;">تلاش کریں</button>
+        <input type="text" id="searchPhone" placeholder="گاہک کا فون نمبر..." style="width: 45%; padding: 7px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;">
+        <button type="button" id="searchBtn" onclick="searchCustomer()" style="padding: 7px 15px; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold;">تلاش کریں</button>
         
         <div id="searchResultsDiv" style="display: none; margin-top: 10px;">
             <label style="font-weight: bold; font-size: 13px;">نام منتخب کریں: </label>
-            <select id="customerSelect" onchange="onCustomerSelected()" style="width: 60%;">
+            <select id="customerSelect" onchange="onCustomerSelected()" style="width: 60%; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;">
             </select>
         </div>
     </div>
@@ -189,6 +219,7 @@ function resetForm() {
     currentSearchResults = [];
 }
 
+/* ---------------- پرنٹ سے پہلے خالی خانوں کو چھپانے کا فنکشن ---------------- */
 function printReceipt() {
     let rows = document.querySelectorAll('.form-grid .row');
     
@@ -196,6 +227,7 @@ function printReceipt() {
         let input = row.querySelector('input, select');
         if (input) {
             let val = input.value ? input.value.trim() : "";
+            // اگر فیلڈ بالکل خالی ہو تو empty-field کلاس لگا دیں
             if (val === "") {
                 row.classList.add('empty-field');
             } else {
@@ -204,8 +236,10 @@ function printReceipt() {
         }
     });
 
+    // پرنٹ ونڈو کھولیں
     window.print();
 
+    // پرنٹ بند ہونے کے بعد تمام خانوں کو سکرین پر واپس شو کریں
     setTimeout(function() {
         rows.forEach(function(row) {
             row.classList.remove('empty-field');
@@ -355,6 +389,19 @@ function onCustomerSelected() {
         let selectedCustomer = currentSearchResults[index];
         document.getElementById('oldCustomerKey').value = selectedCustomer.firebaseKey;
         fillFormData(selectedCustomer);
+    }
+}
+
+function fillFormData(data) {
+    for (let key in data) {
+        let element = document.getElementById(key);
+        if (element) {
+            if (element.type === 'date') {
+                element.value = formatDate(data[key]);
+            } else {
+                element.value = data[key] || '';
+            }
+        }
     }
 }
 
