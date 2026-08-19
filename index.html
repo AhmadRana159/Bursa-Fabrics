@@ -227,9 +227,28 @@ function searchCustomer() {
             let dataList = [];
             snapshot.forEach((childSnapshot) => {
                 let item = childSnapshot.val();
-                item.firebaseId = childSnapshot.key;
-                dataList.push(item);
+                // یہاں ہم یقینی بناتے ہیں کہ اگر ڈیٹا کے اندر نام موجود ہے تو وہ اٹھائے، ورنہ کی کو نام نہ بنائے
+                if (typeof item === 'object' && item !== null) {
+                    item.firebaseId = childSnapshot.key;
+                    // اگر اندر نام نامی فیلڈ نہ ہو تو کی کو ہی نام کی جگہ وقتی طور پر شو نہ کرے بلکہ 'نامعلوم' لکھے
+                    if (!item.name) {
+                        item.name = "گاہک (بغیر نام)";
+                    }
+                    dataList.push(item);
+                }
             });
+            populateSelectDropdown(dataList);
+        } else {
+            alert("اس نمبر کا کوئی ریکارڈ نہیں ملا!");
+            document.getElementById('searchResultsDiv').style.display = 'none';
+        }
+    })
+    .catch((error) => {
+        searchBtn.innerText = "تلاش کریں";
+        searchBtn.disabled = false;
+        alert("تلاش میں خرابی: " + error.message);
+    });
+}
             populateSelectDropdown(dataList);
         } else {
             alert("اس نمبر کا کوئی ریکارڈ نہیں ملا!");
