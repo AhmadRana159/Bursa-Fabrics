@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BURSA CLOTH AND TAILOR</title>
     
-    <!-- Firebase SDK (Version 10 Compat) -->
+    <!-- Firebase App (Modular Version 10) -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
@@ -206,16 +206,15 @@ const firebaseConfig = {
     appId: "1:293685540433:web:29a3cdf2c01ddf2e486a70"
 };
 
-// Firebase Init Check
+// Initialize Firebase safely
+let db;
 try {
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-    }
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.database();
+    console.log("Firebase Connected Successfully");
 } catch (e) {
     console.error("Firebase Init Error:", e);
 }
-
-const db = firebase.database();
 
 function cleanNumber(num) {
     if (!num) return '';
@@ -237,7 +236,6 @@ function resetForm() {
     currentSearchResults = [];
 }
 
-// Save Function with Alert Feedback
 function saveData() {
     let name = document.getElementById('name').value.trim();
     let phone = document.getElementById('phone').value.trim();
@@ -291,7 +289,6 @@ function saveData() {
         notes: document.getElementById('notes').value
     };
 
-    // Firebase par data save karne ki koshish
     db.ref('customers/' + cleanPh).set(formData)
     .then(() => {
         alert("ڈیٹا کامیابی سے اپ ڈیٹ / محفوظ ہو گیا!");
@@ -303,7 +300,6 @@ function saveData() {
     });
 }
 
-// Search Function
 function searchCustomer() {
     let inputVal = document.getElementById('searchPhone').value;
     let searchPhone = cleanNumber(inputVal);
