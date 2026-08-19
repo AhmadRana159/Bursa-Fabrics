@@ -10,25 +10,38 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <style>
+        * { box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #eef2f5; padding: 15px; margin: 0; }
-        .receipt { max-width: 1100px; width: 95%; margin: 20px auto; background: #ffffff; padding: 25px; border: 1px solid #dcdcdc; border-radius: 8px; box-sizing: border-box; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .receipt { max-width: 1100px; width: 100%; margin: 10px auto; background: #ffffff; padding: 20px; border: 1px solid #dcdcdc; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .header { text-align: center; border-bottom: 2px dashed #333; padding-bottom: 10px; margin-bottom: 15px; }
         .header h3 { margin: 0 0 5px 0; font-size: 22px; color: #2c3e50; }
         .form-grid { display: flex; flex-wrap: wrap; justify-content: space-between; }
         .row { width: 48%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 14px; }
-        .row label { font-weight: bold; width: 42%; color: #34495e; }
-        .row input, .row select { width: 55%; padding: 7px 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; background-color: #fafafa; }
+        .row label { font-weight: bold; width: 40%; color: #34495e; }
+        
+        /* کی بورڈ اور ان پٹ کے لیے سادہ اور پکا سٹائل */
+        .row input, .row select { 
+            width: 58%; 
+            padding: 8px; 
+            border: 1px solid #ccc; 
+            border-radius: 4px; 
+            font-size: 16px; /* 16px سے کی بورڈ فوراً کھلتا ہے اور زوم نہیں ہوتا */
+            background-color: #fafafa; 
+            outline: none;
+        }
+        
         .section-title { width: 100%; background: #34495e; color: #ffffff; font-weight: bold; text-align: center; padding: 8px; margin: 15px 0 12px 0; font-size: 15px; border-radius: 4px; }
         .btn { width: 100%; padding: 12px; background: #27ae60; color: white; border: none; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; border-radius: 5px; }
         
+        /* ---------------- موبائل کے لیے لے آؤٹ ---------------- */
         @media (max-width: 768px) { 
-            .receipt { max-width: 100%; padding: 12px; margin: 0 auto; } 
-            .row { width: 100%; margin-bottom: 8px; } 
-            .row label { width: 40%; font-size: 13px; } 
-            .row input, .row select { width: 58%; font-size: 14px; padding: 6px; } 
+            .receipt { padding: 10px; margin: 0 auto; } 
+            .row { width: 100%; margin-bottom: 10px; } 
+            .row label { width: 35%; font-size: 14px; } 
+            .row input, .row select { width: 63%; font-size: 16px; } 
         }
 
-        /* ---------------- صرف پرنٹنگ کے لیے خصوصی اسٹائل ---------------- */
+        /* ---------------- صرف پرنٹنگ کے لیے مخصوص سیٹنگ ---------------- */
         @media print { 
             @page {
                 size: A5 portrait;
@@ -82,7 +95,7 @@
                 width: 45% !important; 
                 font-size: 11px !important; 
             } 
-            /* پرنٹ میں تیر اور خانے کا بارڈر ختم کرنے کا بہتر طریقہ */
+            /* صرف پرنٹ میں تیر (Arrows) غائب کرنے کا طریقہ */
             .row input, .row select { 
                 width: 52% !important; 
                 font-size: 11px !important; 
@@ -109,12 +122,12 @@
 
     <!-- سرچ بار -->
     <div class="no-print" style="background: #eef2f3; padding: 12px; margin-bottom: 15px; border-radius: 6px; text-align: center; border: 1px solid #d5dbdb;">
-        <input type="text" id="searchPhone" placeholder="گاہک کا فون نمبر..." style="width: 45%; padding: 7px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;">
+        <input type="text" id="searchPhone" placeholder="گاہک کا فون نمبر..." style="width: 45%; padding: 7px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px;">
         <button type="button" id="searchBtn" onclick="searchCustomer()" style="padding: 7px 15px; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold;">تلاش کریں</button>
         
         <div id="searchResultsDiv" style="display: none; margin-top: 10px;">
             <label style="font-weight: bold; font-size: 13px;">نام منتخب کریں: </label>
-            <select id="customerSelect" onchange="onCustomerSelected()" style="width: 60%; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;">
+            <select id="customerSelect" onchange="onCustomerSelected()" style="width: 60%; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px;">
             </select>
         </div>
     </div>
@@ -392,19 +405,6 @@ function onCustomerSelected() {
         let selectedCustomer = currentSearchResults[index];
         document.getElementById('oldCustomerKey').value = selectedCustomer.firebaseKey;
         fillFormData(selectedCustomer);
-    }
-}
-
-function fillFormData(data) {
-    for (let key in data) {
-        let element = document.getElementById(key);
-        if (element) {
-            if (element.type === 'date') {
-                element.value = formatDate(data[key]);
-            } else {
-                element.value = data[key] || '';
-            }
-        }
     }
 }
 
