@@ -28,7 +28,7 @@
             .row input, .row select { width: 58%; font-size: 13px; padding: 5px; } 
         }
 
-        /* ---------------- ہاف پیج چٹ (Receipt) پرنٹنگ کی سیٹنگ ---------------- */
+        /* ---------------- پرنٹنگ کی مخصوص سیٹنگ ---------------- */
         @media print { 
             @page {
                 size: A5 portrait; /* ہاف پیج سائز */
@@ -74,6 +74,10 @@
                 margin-bottom: 4px !important; 
                 font-size: 11px !important; 
             } 
+            /* جو خانے خالی ہیں ان کو پرنٹ میں غائب کرنے کا رول */
+            .row.empty-field {
+                display: none !important;
+            }
             .row label { 
                 width: 45% !important; 
                 font-size: 11px !important; 
@@ -124,7 +128,6 @@
                 <option value="مکمل">مکمل ہو گیا (Completed)</option>
             </select>
         </div>
-        <!-- سوٹ کی تعداد (نیا اضافہ) -->
         <div class="row">
             <label>سوٹ کی تعداد:</label>
             <select id="suitQty">
@@ -173,7 +176,7 @@
         <div class="row"><label>نوٹ:</label><input type="text" id="notes"></div>
 
         <button type="button" class="btn no-print" style="background: #3498db;" onclick="saveData()">ڈیٹا محفوظ کریں / اپ ڈیٹ کریں</button>
-        <button type="button" class="btn no-print" onclick="window.print()">پرنٹ کریں</button>
+        <button type="button" class="btn no-print" onclick="printReceipt()">پرنٹ کریں</button>
         <button type="button" class="btn no-print" style="background: #25D366;" onclick="sendWhatsApp()">واٹس ایپ پر میسج بھیجیں</button>
     </form>
 </div>
@@ -212,8 +215,36 @@ function resetForm() {
     document.getElementById('searchPhone').value = '';
     document.getElementById('searchResultsDiv').style.display = 'none';
     document.getElementById('customerSelect').innerHTML = '';
-    document.getElementById('suitQty').value = '1'; // ری سیٹ پر ڈیفالٹ 1
+    document.getElementById('suitQty').value = '1';
     currentSearchResults = [];
+}
+
+/* ---------------- پرنٹ سے پہلے خالی خانوں کو چھپانے کا فنکشن ---------------- */
+function printReceipt() {
+    let rows = document.querySelectorAll('.form-grid .row');
+    
+    rows.forEach(function(row) {
+        let input = row.querySelector('input, select');
+        if (input) {
+            let val = input.value ? input.value.trim() : "";
+            // اگر فیلڈ بالکل خالی ہو تو empty-field کلاس لگا دیں
+            if (val === "") {
+                row.classList.add('empty-field');
+            } else {
+                row.classList.remove('empty-field');
+            }
+        }
+    });
+
+    // پرنٹ ونڈو کھولیں
+    window.print();
+
+    // پرنٹ بند ہونے کے بعد تمام خانوں کو سکرین پر واپس شو کریں
+    setTimeout(function() {
+        rows.forEach(function(row) {
+            row.classList.remove('empty-field');
+        });
+    }, 1000);
 }
 
 function saveData() {
@@ -244,7 +275,7 @@ function saveData() {
         returnDate: document.getElementById('returnDate').value,
         stitching: document.getElementById('stitching').value,
         suitStatus: document.getElementById('suitStatus').value,
-        suitQty: document.getElementById('suitQty').value, // ڈیٹا سیو میں تعداد شامل کی گئی
+        suitQty: document.getElementById('suitQty').value,
         shirtLen: document.getElementById('shirtLen').value,
         kuhni: document.getElementById('kuhni').value,
         bazu: document.getElementById('bazu').value,
