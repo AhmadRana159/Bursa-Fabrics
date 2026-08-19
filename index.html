@@ -143,6 +143,9 @@ function saveData() {
     let phone = phoneElement ? phoneElement.value.trim() : "";
     let recordId = document.getElementById('recordId').value;
 
+    // یہ چیک کرنے کے لیے کہ نام واقعی مل رہا ہے یا نہیں
+    alert("سیو ہونے والا نام: " + name);
+
     if (!name || !phone) {
         alert("براہ کرم گاہک کا نام اور فون نمبر دونوں درج کریں!");
         return;
@@ -163,7 +166,7 @@ function saveData() {
         stitching: document.getElementById('stitching').value,
         suitStatus: document.getElementById('suitStatus').value,
         shirtLen: document.getElementById('shirtLen').value,
-        kuhni: document.getElementById('kuhni').value,
+        kuhni: document.getElementById('kuhni'].value,
         bazu: document.getElementById('bazu').value,
         frontPocket: document.getElementById('frontPocket').value,
         teera: document.getElementById('teera').value,
@@ -194,19 +197,18 @@ function saveData() {
     let ref = db.ref('customers/' + cleanPh);
 
     if (recordId) {
-        ref.child(recordId).set(formData).then(() => {
+        ref.child(recordId).set(formData).then(function() {
             alert("ریکارڈ کامیابی سے اپ ڈیٹ ہو گیا!");
             resetForm();
         });
     } else {
         let newRef = ref.push();
-        newRef.set(formData).then(() => {
+        newRef.set(formData).then(function() {
             alert("نیا ریکارڈ کامیابی سے محفوظ ہو گیا!");
             resetForm();
         });
     }
 }
-
 function searchCustomer() {
     let inputVal = document.getElementById('searchPhone').value;
     let searchPhone = cleanNumber(inputVal);
