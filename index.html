@@ -194,31 +194,32 @@
 </div>
 
 <script>
-// 1. Firebase Credentials (اپنے فائر بیس پروجیکٹ کی کیز یہاں لگائیں)
+let currentSearchResults = [];
+
 const firebaseConfig = {
     apiKey: "AIzaSyDgbMDgt40YlJ7X4xdkX6uhS0CFLNBOTJs",
     authDomain: "bursa-fabrics.firebaseapp.com",
-databaseURL: "https://bursa-fabrics-default-rtdb.firebaseio.com", 
+    databaseURL: "https://bursa-fabrics-default-rtdb.firebaseio.com", 
     projectId: "bursa-fabrics",
     storageBucket: "bursa-fabrics.firebasestorage.app",
     messagingSenderId: "293685540433",
     appId: "1:293685540433:web:29a3cdf2c01ddf2e486a70"
-  };
+};
 
+// Firebase Init Check
+try {
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+} catch (e) {
+    console.error("Firebase Init Error:", e);
+}
 
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
-
-// Firebase Offline Persistence (انٹرنیٹ نہ ہونے پر بھی ڈیٹا سیو ہوگا)
-db.ref().keepSynced(true);
-
-let currentSearchResults = [];
 
 function cleanNumber(num) {
     if (!num) return '';
-    let str = String(num).replace(/[^0-9]/g, '');
-    return str.length >= 10 ? str.slice(-10) : str;
+    return String(num).replace(/[^0-9]/g, '');
 }
 
 function formatDate(dateStr) {
@@ -236,7 +237,7 @@ function resetForm() {
     currentSearchResults = [];
 }
 
-// Data Save / Update Function
+// Save Function with Alert Feedback
 function saveData() {
     let name = document.getElementById('name').value.trim();
     let phone = document.getElementById('phone').value.trim();
@@ -247,6 +248,11 @@ function saveData() {
     }
 
     let cleanPh = cleanNumber(phone);
+
+    if (cleanPh.length < 10) {
+        alert("براہ کرم درست فون نمبر درج کریں (کم از کم 10 ہندسے)!");
+        return;
+    }
 
     let formData = {
         name: name,
@@ -285,20 +291,22 @@ function saveData() {
         notes: document.getElementById('notes').value
     };
 
-    // Firebase database me phone number ko ID بنا کر محفوظ کر رہے ہیں
+    // Firebase par data save karne ki koshish
     db.ref('customers/' + cleanPh).set(formData)
     .then(() => {
         alert("ڈیٹا کامیابی سے اپ ڈیٹ / محفوظ ہو گیا!");
         resetForm();
     })
     .catch((error) => {
-        alert("غلطی: " + error.message);
+        console.error("Save Error:", error);
+        alert("ڈیٹا سیو نہیں ہوا! وجہ: " + error.message);
     });
 }
 
-// Search Customer Function
+// Search Function
 function searchCustomer() {
-    let searchPhone = cleanNumber(document.getElementById('searchPhone').value);
+    let inputVal = document.getElementById('searchPhone').value;
+    let searchPhone = cleanNumber(inputVal);
     let searchBtn = document.getElementById('searchBtn');
 
     if (!searchPhone) {
@@ -318,13 +326,14 @@ function searchCustomer() {
             let customerData = snapshot.val();
             populateSelectDropdown([customerData]);
         } else {
-            alert("اس نمبر کا کوئی ریکارڈ نہیں ملا!");
+            alert("اس نمبر (" + searchPhone + ") کا کوئی ریکارڈ نہیں ملا!");
             document.getElementById('searchResultsDiv').style.display = 'none';
         }
     })
     .catch((error) => {
         searchBtn.innerText = "تلاش کریں";
         searchBtn.disabled = false;
+        console.error("Search Error:", error);
         alert("تلاش کرنے میں مسئلہ آیا: " + error.message);
     });
 }
