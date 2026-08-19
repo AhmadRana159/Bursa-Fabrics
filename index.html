@@ -142,7 +142,6 @@ function saveData() {
     
     let name = nameElement ? nameElement.value.trim() : "";
     let phone = phoneElement ? phoneElement.value.trim() : "";
-    let oldKey = document.getElementById('oldCustomerKey').value;
 
     if (!name || !phone) {
         alert("براہ کرم گاہک کا نام اور فون نمبر دونوں درج کریں!");
@@ -155,8 +154,8 @@ function saveData() {
         return;
     }
 
-    // یہاں ہم نے کی (Key) کو نمبر اور نام ملا کر بنایا ہے تاکہ فائر بیس میں باہر نام شو ہو
-    let uniqueCustomerKey = cleanPh + "_" + name;
+    // ہم نام کے اندر موجود کسی بھی غیر ضروری سلیش یا ڈاٹ کو صاف کر رہے ہیں تاکہ فائر بیس میں ایرر نہ آئے
+    let safeName = name.replace(/[.#$\/\[\]]/g, "_");
 
     let formData = {
         name: name,
@@ -195,24 +194,16 @@ function saveData() {
         notes: document.getElementById('notes').value
     };
 
-    let ref = db.ref('customers/' + cleanPh);
-
-    // اگر پرانا نام تبدیل کیا گیا ہے تو پرانی انٹری کو ڈیلیٹ کر دیں تاکہ ڈپلیکیٹ نہ بنے
-    let saveProcess = Promise.resolve();
-    if (oldKey && oldKey !== uniqueCustomerKey) {
-        saveProcess = ref.child(oldKey).remove();
-    }
-
-    saveProcess.then(function() {
-        ref.child(uniqueCustomerKey).set(formData).then(function() {
-            alert("ڈیٹا کامیابی سے محفوظ ہو گیا!");
-            resetForm();
-        });
-    }).catch(function(error) {
-        alert("خرابی: " + error.message);
+    // براہِ راست فون نمبر کے اندر نام کو بطور کی (Key) سیو کر رہے ہیں
+    db.ref('customers/' + cleanPh + '/' + safeName).set(formData)
+    .then(function() {
+        alert("ڈیٹا کامیابی سے محفوظ ہو گیا!");
+        resetForm();
+    })
+    .catch(function(error) {
+        alert("محفوظ کرنے میں خرابی: " + error.message);
     });
 }
-
 function searchCustomer() {
     let inputVal = document.getElementById('searchPhone').value;
     let searchPhone = cleanNumber(inputVal);
