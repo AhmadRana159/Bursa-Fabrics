@@ -193,14 +193,18 @@ function saveData() {
         notes: document.getElementById('notes').value
     };
 
-    // 1. فائر بیس کو ڈیٹا بھیجنے کی کوشش کریں (آف لائن ہو تو یہ کیش میں چلا جائے گا)
+    // 1. فائر بیس پر ڈیٹا بھیجنے کی کوشش کریں
     try {
         db.ref('customers/' + cleanPh + '/' + safeName).set(formData);
-    } catch (e) {
-        console.log("Firebase offline save error: ", e);
+    } catch (err) {
+        console.log("Offline mode active");
     }
 
-    // 2. فوری طور پر صارف کو کامیابی کا الرٹ دیں اور فارم خالی کر دیں (چاہے انٹرنیٹ ہو یا نہ ہو)
+    // 2. براؤزر کے اندر لوکل بیک اپ محفوظ کریں تاکہ آف لائن میں بھی ریکارڈ نہ اڑے
+    let offlineKey = "bursa_" + cleanPh + "_" + safeName;
+    localStorage.setItem(offlineKey, JSON.stringify(formData));
+
+    // 3. فوری طور پر میسج شو کریں اور فارم خالی کریں
     alert("ڈیٹا کامیابی سے محفوظ ہو گیا!");
     resetForm();
 }
