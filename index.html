@@ -5,119 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BURSA CLOTH AND TAILOR</title>
     
-    <!-- Firebase App (Modular Version 10) -->
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
     <style>
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background: #eef2f5; 
-            padding: 15px; 
-            margin: 0; 
-        }
-
-        .receipt { 
-            max-width: 1100px; 
-            width: 95%; 
-            margin: 20px auto; 
-            background: #ffffff; 
-            padding: 25px; 
-            border: 1px solid #dcdcdc; 
-            border-radius: 8px; 
-            box-sizing: border-box;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-
-        .header { 
-            text-align: center; 
-            border-bottom: 2px dashed #333; 
-            padding-bottom: 10px; 
-            margin-bottom: 15px; 
-        }
-
-        .header h3 {
-            margin: 0 0 5px 0;
-            font-size: 22px;
-            color: #2c3e50;
-        }
-
-        .form-grid { 
-            display: flex; 
-            flex-wrap: wrap; 
-            justify-content: space-between; 
-        }
-
-        .row { 
-            width: 48%; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 10px; 
-            font-size: 14px; 
-        }
-
-        .row label { 
-            font-weight: bold; 
-            width: 42%; 
-            color: #34495e;
-        }
-
-        .row input, .row select { 
-            width: 55%; 
-            padding: 7px 10px; 
-            border: 1px solid #ccc; 
-            border-radius: 4px; 
-            box-sizing: border-box;
-            font-size: 14px;
-            background-color: #fafafa;
-        }
-
-        .row input:focus, .row select:focus {
-            border-color: #3498db;
-            outline: none;
-            background-color: #fff;
-        }
-
-        .section-title { 
-            width: 100%; 
-            background: #34495e; 
-            color: #ffffff;
-            font-weight: bold; 
-            text-align: center; 
-            padding: 8px; 
-            margin: 15px 0 12px 0; 
-            font-size: 15px; 
-            border-radius: 4px;
-        }
-
-        .btn { 
-            width: 100%; 
-            padding: 12px; 
-            background: #27ae60; 
-            color: white; 
-            border: none; 
-            font-size: 16px; 
-            font-weight: bold;
-            cursor: pointer; 
-            margin-top: 10px; 
-            border-radius: 5px; 
-            transition: background 0.2s;
-        }
-
-        .btn:hover { opacity: 0.9; }
-
-        @media (max-width: 768px) {
-            .receipt { max-width: 100%; padding: 12px; margin: 0 auto; }
-            .row { width: 100%; margin-bottom: 8px; }
-            .row label { width: 40%; font-size: 13px; }
-            .row input, .row select { width: 58%; font-size: 13px; padding: 5px; }
-        }
-
-        @media print { 
-            .btn, .no-print { display: none !important; } 
-            .receipt { border: none; width: 100%; box-shadow: none; padding: 0; } 
-        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #eef2f5; padding: 15px; margin: 0; }
+        .receipt { max-width: 1100px; width: 95%; margin: 20px auto; background: #ffffff; padding: 25px; border: 1px solid #dcdcdc; border-radius: 8px; box-sizing: border-box; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .header { text-align: center; border-bottom: 2px dashed #333; padding-bottom: 10px; margin-bottom: 15px; }
+        .header h3 { margin: 0 0 5px 0; font-size: 22px; color: #2c3e50; }
+        .form-grid { display: flex; flex-wrap: wrap; justify-content: space-between; }
+        .row { width: 48%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 14px; }
+        .row label { font-weight: bold; width: 42%; color: #34495e; }
+        .row input, .row select { width: 55%; padding: 7px 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; background-color: #fafafa; }
+        .section-title { width: 100%; background: #34495e; color: #ffffff; font-weight: bold; text-align: center; padding: 8px; margin: 15px 0 12px 0; font-size: 15px; border-radius: 4px; }
+        .btn { width: 100%; padding: 12px; background: #27ae60; color: white; border: none; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; border-radius: 5px; }
+        @media (max-width: 768px) { .receipt { max-width: 100%; padding: 12px; margin: 0 auto; } .row { width: 100%; margin-bottom: 8px; } .row label { width: 40%; font-size: 13px; } .row input, .row select { width: 58%; font-size: 13px; padding: 5px; } }
+        @media print { .btn, .no-print { display: none !important; } .receipt { border: none; width: 100%; box-shadow: none; padding: 0; } }
     </style>
 </head>
 <body>
@@ -142,6 +46,8 @@
 
     <!-- فارم -->
     <form id="tailorForm" class="form-grid">
+        <input type="hidden" id="recordId">
+        
         <div class="row"><label>نام:</label><input type="text" id="name"></div>
         <div class="row"><label>فون نمبر:</label><input type="text" id="phone"></div>
         <div class="row"><label>بکنگ تاریخ:</label><input type="date" id="bookingDate"></div>
@@ -187,7 +93,6 @@
         <div class="row"><label>نوٹ:</label><input type="text" id="notes"></div>
 
         <button type="button" class="btn" style="background: #3498db;" onclick="saveData()">ڈیٹا محفوظ کریں / اپ ڈیٹ کریں</button>
-        
         <button type="button" class="btn no-print" onclick="window.print()">پرنٹ کریں</button>
         <button type="button" class="btn no-print" style="background: #25D366;" onclick="sendWhatsApp()">واٹس ایپ پر میسج بھیجیں</button>
     </form>
@@ -206,15 +111,11 @@ const firebaseConfig = {
     appId: "1:293685540433:web:29a3cdf2c01ddf2e486a70"
 };
 
-// Initialize Firebase safely
-let db;
 try {
     firebase.initializeApp(firebaseConfig);
-    db = firebase.database();
-    console.log("Firebase Connected Successfully");
-} catch (e) {
-    console.error("Firebase Init Error:", e);
-}
+} catch (e) {}
+
+const db = firebase.database();
 
 function cleanNumber(num) {
     if (!num) return '';
@@ -230,6 +131,7 @@ function formatDate(dateStr) {
 
 function resetForm() {
     document.getElementById('tailorForm').reset();
+    document.getElementById('recordId').value = '';
     document.getElementById('searchPhone').value = '';
     document.getElementById('searchResultsDiv').style.display = 'none';
     document.getElementById('customerSelect').innerHTML = '';
@@ -239,6 +141,7 @@ function resetForm() {
 function saveData() {
     let name = document.getElementById('name').value.trim();
     let phone = document.getElementById('phone').value.trim();
+    let recordId = document.getElementById('recordId').value;
 
     if (!name || !phone) {
         alert("براہ کرم گاہک کا نام اور فون نمبر دونوں درج کریں!");
@@ -246,9 +149,8 @@ function saveData() {
     }
 
     let cleanPh = cleanNumber(phone);
-
     if (cleanPh.length < 10) {
-        alert("براہ کرم درست فون نمبر درج کریں (کم از کم 10 ہندسے)!");
+        alert("براہ کرم درست فون نمبر درج کریں!");
         return;
     }
 
@@ -289,15 +191,44 @@ function saveData() {
         notes: document.getElementById('notes').value
     };
 
-    db.ref('customers/' + cleanPh).set(formData)
-    .then(() => {
-        alert("ڈیٹا کامیابی سے اپ ڈیٹ / محفوظ ہو گیا!");
-        resetForm();
-    })
-    .catch((error) => {
-        console.error("Save Error:", error);
-        alert("ڈیٹا سیو نہیں ہوا! وجہ: " + error.message);
-    });
+    let ref = db.ref('customers/' + cleanPh);
+
+    if (recordId) {
+        // اگر سرچ کر کے پرانا سلیکٹ کیا تھا تو اسی کو اپ ڈیٹ کرے گا
+        ref.child(recordId).set(formData).then(() => {
+            alert("ریکارڈ کامیابی سے اپ ڈیٹ ہو گیا!");
+            resetForm();
+        });
+    } else {
+        // چیک کرے گا کہ کیا اس نمبر پر پہلے سے کوئی ڈیٹا موجود ہے؟
+        ref.once('value').then((snapshot) => {
+            let existingKey = null;
+            if (snapshot.exists()) {
+                snapshot.forEach((childSnap) => {
+                    let existingData = childSnap.val();
+                    // اگر نام بھی بالکل سیم ہوا تو پرانے کو اپ ڈیٹ کر دے گا
+                    if (existingData.name.trim().toLowerCase() === name.toLowerCase()) {
+                        existingKey = childSnap.key;
+                    }
+                });
+            }
+
+            if (existingKey) {
+                // اگر سیم نام مل گیا تو اپ ڈیٹ کر دو
+                ref.child(existingKey).set(formData).then(() => {
+                    alert("اس نام اور نمبر کا ریکارڈ پہلے سے موجود تھا، لہذا ڈیٹا اپ ڈیٹ کر دیا گیا!");
+                    resetForm();
+                });
+            } else {
+                // اگر نمبر سیم ہے لیکن نام الگ ہے تو نئی انٹری (نیا ریکارڈ) بنا دو
+                let newRef = ref.push();
+                newRef.set(formData).then(() => {
+                    alert("نیا ریکارڈ کامیابی سے محفوظ ہو گیا!");
+                    resetForm();
+                });
+            }
+        });
+    }
 }
 
 function searchCustomer() {
@@ -306,7 +237,7 @@ function searchCustomer() {
     let searchBtn = document.getElementById('searchBtn');
 
     if (!searchPhone) {
-        alert("براہ کرم تلاش کرنے کے لیے فون نمبر درج کریں!");
+        alert("تلاش کے لیے فون نمبر درج کریں!");
         return;
     }
 
@@ -319,18 +250,17 @@ function searchCustomer() {
         searchBtn.disabled = false;
 
         if (snapshot.exists()) {
-            let customerData = snapshot.val();
-            populateSelectDropdown([customerData]);
+            let dataList = [];
+            snapshot.forEach((childSnapshot) => {
+                let item = childSnapshot.val();
+                item.firebaseId = childSnapshot.key;
+                dataList.push(item);
+            });
+            populateSelectDropdown(dataList);
         } else {
-            alert("اس نمبر (" + searchPhone + ") کا کوئی ریکارڈ نہیں ملا!");
+            alert("اس نمبر کا کوئی ریکارڈ نہیں ملا!");
             document.getElementById('searchResultsDiv').style.display = 'none';
         }
-    })
-    .catch((error) => {
-        searchBtn.innerText = "تلاش کریں";
-        searchBtn.disabled = false;
-        console.error("Search Error:", error);
-        alert("تلاش کرنے میں مسئلہ آیا: " + error.message);
     });
 }
 
@@ -342,7 +272,7 @@ function populateSelectDropdown(list) {
     list.forEach((item, index) => {
         let opt = document.createElement('option');
         opt.value = index;
-        opt.textContent = item.name + " (" + (item.bookingDate ? formatDate(item.bookingDate) : 'تاریخ دستیاب نہیں') + ")";
+        opt.textContent = item.name + " (" + (item.bookingDate ? formatDate(item.bookingDate) : 'تاريخ نہیں') + ")";
         select.appendChild(opt);
     });
 
@@ -358,6 +288,7 @@ function onCustomerSelected() {
     let index = document.getElementById('customerSelect').value;
     if (index !== "") {
         let selectedCustomer = currentSearchResults[index];
+        document.getElementById('recordId').value = selectedCustomer.firebaseId;
         fillFormData(selectedCustomer);
     }
 }
@@ -379,20 +310,10 @@ function sendWhatsApp() {
     let name = document.getElementById('name').value;
     let phone = document.getElementById('phone').value.trim();
     let status = document.getElementById('suitStatus').value;
-
-    if (!phone) { 
-        alert("براہ کرم گاہک کا فون نمبر درج کریں!"); 
-        return; 
-    }
-
-    let cleanPh = cleanNumber(phone);
-    let fullPhone = '92' + cleanPh;
-
-    let msg = status === "مکمل" 
-        ? "السلام علیکم " + name + " صاحب، آپ کا سوٹ سلائی ہو کر مکمل ہو چکا ہے، آپ اسے برصہ کلاتھ اینڈ ٹیلر سے وصول کر سکتے ہیں۔"
-        : "السلام علیکم " + name + " صاحب، آپ کے سوٹ کی سلائی جاری ہے۔";
-
-    window.open("https://wa.me/" + fullPhone + "?text=" + encodeURIComponent(msg), "_blank");
+    if (!phone) { alert("فون نمبر درج کریں!"); return; }
+    let fullPhone = '92' + cleanNumber(phone);
+    let msg = status === "مکمل" ? `السلام علیکم ${name} صاحب، آپ کا سوٹ سلائی ہو کر مکمل ہو چکا ہے۔` : `السلام علیکم ${name} صاحب، آپ کے سوٹ کی سلائی جاری ہے۔`;
+    window.open(`https://wa.me/${fullPhone}?text=${encodeURIComponent(msg)}`, "_blank");
 }
 </script>
 
