@@ -46,7 +46,8 @@
 
     <!-- فارم -->
     <form id="tailorForm" class="form-grid">
-        <input type="hidden" id="recordId">
+        <!-- یہ ہڈن فیلڈ اب پرانے نام کو یاد رکھے گی تاکہ نام بدلنے پر پرانا والا ڈیلیٹ ہو سکے -->
+        <input type="hidden" id="oldCustomerKey">
         
         <div class="row"><label>نام:</label><input type="text" id="name"></div>
         <div class="row"><label>فون نمبر:</label><input type="text" id="phone"></div>
@@ -128,7 +129,7 @@ function formatDate(dateStr) {
 
 function resetForm() {
     document.getElementById('tailorForm').reset();
-    document.getElementById('recordId').value = '';
+    document.getElementById('oldCustomerKey').value = '';
     document.getElementById('searchPhone').value = '';
     document.getElementById('searchResultsDiv').style.display = 'none';
     document.getElementById('customerSelect').innerHTML = '';
@@ -141,10 +142,7 @@ function saveData() {
     
     let name = nameElement ? nameElement.value.trim() : "";
     let phone = phoneElement ? phoneElement.value.trim() : "";
-    let recordId = document.getElementById('recordId').value;
-
-    // یہ چیک کرنے کے لیے کہ نام واقعی مل رہا ہے یا نہیں
-    alert("سیو ہونے والا نام: " + name);
+    let oldKey = document.getElementById('oldCustomerKey').value;
 
     if (!name || !phone) {
         alert("براہ کرم گاہک کا نام اور فون نمبر دونوں درج کریں!");
@@ -157,6 +155,9 @@ function saveData() {
         return;
     }
 
+    // یہاں ہم نے کی (Key) کو نمبر اور نام ملا کر بنایا ہے تاکہ فائر بیس میں باہر نام شو ہو
+    let uniqueCustomerKey = cleanPh + "_" + name;
+
     let formData = {
         name: name,
         phone: phone,
@@ -166,7 +167,7 @@ function saveData() {
         stitching: document.getElementById('stitching').value,
         suitStatus: document.getElementById('suitStatus').value,
         shirtLen: document.getElementById('shirtLen').value,
-        kuhni: document.getElementById('kuhni'].value,
+        kuhni: document.getElementById('kuhni').value,
         bazu: document.getElementById('bazu').value,
         frontPocket: document.getElementById('frontPocket').value,
         teera: document.getElementById('teera').value,
@@ -196,19 +197,22 @@ function saveData() {
 
     let ref = db.ref('customers/' + cleanPh);
 
-    if (recordId) {
-        ref.child(recordId).set(formData).then(function() {
-            alert("ریکارڈ کامیابی سے اپ ڈیٹ ہو گیا!");
-            resetForm();
-        });
-    } else {
-        let newRef = ref.push();
-        newRef.set(formData).then(function() {
-            alert("نیا ریکارڈ کامیابی سے محفوظ ہو گیا!");
-            resetForm();
-        });
+    // اگر پرانا نام تبدیل کیا گیا ہے تو پرانی انٹری کو ڈیلیٹ کر دیں تاکہ ڈپلیکیٹ نہ بنے
+    let saveProcess = Promise.resolve();
+    if (oldKey && oldKey !== uniqueCustomerKey) {
+        saveProcess = ref.child(oldKey).remove();
     }
+
+    saveProcess.then(function() {
+        ref.child(uniqueCustomerKey).set(formData).then(function() {
+            alert("ڈیٹا کامیابی سے محفوظ ہو گیا!");
+            resetForm();
+        });
+    }).catch(function(error) {
+        alert("خرابی: " + error.message);
+    });
 }
+
 function searchCustomer() {
     let inputVal = document.getElementById('searchPhone').value;
     let searchPhone = cleanNumber(inputVal);
@@ -223,16 +227,16 @@ function searchCustomer() {
     searchBtn.disabled = true;
 
     db.ref('customers/' + searchPhone).once('value')
-    .then((snapshot) => {
+    .then(function(snapshot) {
         searchBtn.innerText = "تلاش کریں";
         searchBtn.disabled = false;
 
         if (snapshot.exists()) {
             let dataList = [];
-            snapshot.forEach((childSnapshot) => {
+            snapshot.forEach(function(childSnapshot) {
                 let item = childSnapshot.val();
                 if (typeof item === 'object' && item !== null) {
-                    item.firebaseId = childSnapshot.key;
+                    item.firebaseKey = childSnapshot.key; // فائر بیس کی اپنی کی (جیسے 0345..._علی)
                     if (!item.name) {
                         item.name = "گاہک (بغیر نام)";
                     }
@@ -245,7 +249,7 @@ function searchCustomer() {
             document.getElementById('searchResultsDiv').style.display = 'none';
         }
     })
-    .catch((error) => {
+    .catch(function(error) {
         searchBtn.innerText = "تلاش کریں";
         searchBtn.disabled = false;
         alert("تلاش میں خرابی: " + error.message);
@@ -260,11 +264,8 @@ function populateSelectDropdown(list) {
     list.forEach(function(item, index) {
         let opt = document.createElement('option');
         opt.value = index;
-        
-        // یہاں ہم چیک کر رہے ہیں کہ اگر نام موجود ہے تو وہ آئے، ورنہ فون نمبر یا نامعلوم شو ہو
-        let custName = item.name ? item.name : (item.phone ? item.phone : "نامعلوم نام");
+        let custName = item.name ? item.name : "نامعلوم نام";
         let bDate = item.bookingDate ? formatDate(item.bookingDate) : 'تاريخ نہیں';
-        
         opt.textContent = custName + " (بکنگ تاریخ: " + bDate + ")";
         select.appendChild(opt);
     });
@@ -281,7 +282,8 @@ function onCustomerSelected() {
     let index = document.getElementById('customerSelect').value;
     if (index !== "") {
         let selectedCustomer = currentSearchResults[index];
-        document.getElementById('recordId').value = selectedCustomer.firebaseId;
+        // یہاں ہم پرانی کی کو سیو کر رہے ہیں تاکہ اپ ڈیٹ کرتے وقت مدد ملے
+        document.getElementById('oldCustomerKey').value = selectedCustomer.firebaseKey;
         fillFormData(selectedCustomer);
     }
 }
