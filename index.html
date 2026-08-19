@@ -88,6 +88,14 @@
                 padding: 2px 4px !important; 
                 border: 1px solid #aaa !important; 
                 background: transparent !important;
+                /* ڈرپ ڈاؤنز کے ایرو کو ختم کرنے کے لیے کوڈ */
+                -webkit-appearance: none !important;
+                -moz-appearance: none !important;
+                appearance: none !important;
+            }
+            /* Internet Explorer میں ایرو ختم کرنے کے لیے */
+            .row select::-ms-expand {
+                display: none !important;
             }
         }
     </style>
@@ -219,7 +227,6 @@ function resetForm() {
     currentSearchResults = [];
 }
 
-/* ---------------- پرنٹ سے پہلے خالی خانوں کو چھپانے کا فنکشن ---------------- */
 function printReceipt() {
     let rows = document.querySelectorAll('.form-grid .row');
     
@@ -227,7 +234,6 @@ function printReceipt() {
         let input = row.querySelector('input, select');
         if (input) {
             let val = input.value ? input.value.trim() : "";
-            // اگر فیلڈ بالکل خالی ہو تو empty-field کلاس لگا دیں
             if (val === "") {
                 row.classList.add('empty-field');
             } else {
@@ -236,10 +242,8 @@ function printReceipt() {
         }
     });
 
-    // پرنٹ ونڈو کھولیں
     window.print();
 
-    // پرنٹ بند ہونے کے بعد تمام خانوں کو سکرین پر واپس شو کریں
     setTimeout(function() {
         rows.forEach(function(row) {
             row.classList.remove('empty-field');
