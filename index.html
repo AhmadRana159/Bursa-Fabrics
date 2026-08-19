@@ -154,7 +154,6 @@ function saveData() {
         return;
     }
 
-    // ہم نام کے اندر موجود کسی بھی غیر ضروری سلیش یا ڈاٹ کو صاف کر رہے ہیں تاکہ فائر بیس میں ایرر نہ آئے
     let safeName = name.replace(/[.#$\/\[\]]/g, "_");
 
     let formData = {
@@ -194,15 +193,16 @@ function saveData() {
         notes: document.getElementById('notes').value
     };
 
-    // براہِ راست فون نمبر کے اندر نام کو بطور کی (Key) سیو کر رہے ہیں
-    db.ref('customers/' + cleanPh + '/' + safeName).set(formData)
-    .then(function() {
-        alert("ڈیٹا کامیابی سے محفوظ ہو گیا!");
-        resetForm();
-    })
-    .catch(function(error) {
-        alert("محفوظ کرنے میں خرابی: " + error.message);
-    });
+    // 1. فائر بیس کو ڈیٹا بھیجنے کی کوشش کریں (آف لائن ہو تو یہ کیش میں چلا جائے گا)
+    try {
+        db.ref('customers/' + cleanPh + '/' + safeName).set(formData);
+    } catch (e) {
+        console.log("Firebase offline save error: ", e);
+    }
+
+    // 2. فوری طور پر صارف کو کامیابی کا الرٹ دیں اور فارم خالی کر دیں (چاہے انٹرنیٹ ہو یا نہ ہو)
+    alert("ڈیٹا کامیابی سے محفوظ ہو گیا!");
+    resetForm();
 }
 function searchCustomer() {
     let inputVal = document.getElementById('searchPhone').value;
