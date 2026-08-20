@@ -31,7 +31,7 @@
         /* ---------------- پرنٹنگ کی مخصوص سیٹنگ ---------------- */
         @media print { 
             @page {
-                size: A5 portrait; /* ہاف پیج سائز */
+                size: A5 portrait;
                 margin: 5mm; 
             }
             body { 
@@ -74,7 +74,6 @@
                 margin-bottom: 4px !important; 
                 font-size: 11px !important; 
             } 
-            /* جو خانے خالی ہیں ان کو پرنٹ میں غائب کرنے کا رول */
             .row.empty-field {
                 display: none !important;
             }
@@ -88,12 +87,10 @@
                 padding: 2px 4px !important; 
                 border: 1px solid #aaa !important; 
                 background: transparent !important;
-                /* ڈرپ ڈاؤنز کے ایرو کو ختم کرنے کے لیے کوڈ */
                 -webkit-appearance: none !important;
                 -moz-appearance: none !important;
                 appearance: none !important;
             }
-            /* Internet Explorer میں ایرو ختم کرنے کے لیے */
             .row select::-ms-expand {
                 display: none !important;
             }
@@ -183,6 +180,11 @@
         <div class="row"><label>آسن:</label><input type="text" id="asan"></div>
         <div class="row"><label>نوٹ:</label><input type="text" id="notes"></div>
 
+        <div class="section-title">حساب کتاب</div>
+        <div class="row"><label>کل رقم:</label><input type="text" id="totalAmount" oninput="calculateBalance()" placeholder="0"></div>
+        <div class="row"><label>ایڈوانس:</label><input type="text" id="advanceAmount" oninput="calculateBalance()" placeholder="0"></div>
+        <div class="row"><label>بقایا رقم:</label><input type="text" id="remainingAmount" readonly placeholder="0" style="background-color: #e9ecef; font-weight: bold;"></div>
+
         <button type="button" class="btn no-print" style="background: #3498db;" onclick="saveData()">ڈیٹا محفوظ کریں / اپ ڈیٹ کریں</button>
         <button type="button" class="btn no-print" onclick="printReceipt()">پرنٹ کریں</button>
         <button type="button" class="btn no-print" style="background: #25D366;" onclick="sendWhatsApp()">واٹس ایپ پر میسج بھیجیں</button>
@@ -190,6 +192,17 @@
 </div>
 
 <script>
+// ---------- Service Worker پش کرنا تاکہ آف لائن ایپ چلے ----------
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+        navigator.serviceWorker.register('./sw.js').then(function(reg) {
+            console.log('Service Worker Registered Successfully!');
+        }).catch(function(err) {
+            console.log('Service Worker Failed: ', err);
+        });
+    });
+}
+
 let currentSearchResults = [];
 
 const firebaseConfig = {
@@ -203,7 +216,20 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
+
+// Firebase آف لائن پرسٹنس (Offline Persistence) ایکٹیو کرنا
+try {
+    firebase.database().goOnline();
+} catch(e) {}
+
 const db = firebase.database();
+
+function calculateBalance() {
+    let total = parseFloat(document.getElementById('totalAmount').value) || 0;
+    let advance = parseFloat(document.getElementById('advanceAmount').value) || 0;
+    let balance = total - advance;
+    document.getElementById('remainingAmount').value = balance >= 0 ? balance : 0;
+}
 
 function cleanNumber(num) {
     if (!num) return '';
@@ -224,6 +250,7 @@ function resetForm() {
     document.getElementById('searchResultsDiv').style.display = 'none';
     document.getElementById('customerSelect').innerHTML = '';
     document.getElementById('suitQty').value = '1';
+    document.getElementById('remainingAmount').value = '';
     currentSearchResults = [];
 }
 
@@ -234,7 +261,7 @@ function printReceipt() {
         let input = row.querySelector('input, select');
         if (input) {
             let val = input.value ? input.value.trim() : "";
-            if (val === "") {
+            if (val === "" || val === "0") {
                 row.classList.add('empty-field');
             } else {
                 row.classList.remove('empty-field');
@@ -306,17 +333,23 @@ function saveData() {
         shalwarPocket: document.getElementById('shalwarPocket').value,
         ghera: document.getElementById('ghera').value,
         asan: document.getElementById('asan').value,
-        notes: document.getElementById('notes').value
+        notes: document.getElementById('notes').value,
+        totalAmount: document.getElementById('totalAmount').value,
+        advanceAmount: document.getElementById('advanceAmount').value,
+        remainingAmount: document.getElementById('remainingAmount').value
     };
 
+    // 1. Firebase Sync
     try {
         db.ref('customers/' + cleanPh + '/' + safeName).set(formData);
-    } catch (err) {
-        console.log("Offline mode active");
-    }
+    } catch (err) {}
 
-    let offlineKey = "bursa_" + cleanPh + "_" + safeName;
-    localStorage.setItem(offlineKey, JSON.stringify(formData));
+    // 2. LocalStorage Caching (For Guaranteed Offline Search)
+    let localStoreKey = "bursa_cust_" + cleanPh;
+    let existingData = JSON.parse(localStorage.getItem(localStoreKey) || "[]");
+    existingData = existingData.filter(item => item.name !== name);
+    existingData.push(formData);
+    localStorage.setItem(localStoreKey, JSON.stringify(existingData));
 
     alert("ڈیٹا کامیابی سے محفوظ ہو گیا!");
     resetForm();
@@ -335,6 +368,18 @@ function searchCustomer() {
     searchBtn.innerText = "تلاش جاری ہے...";
     searchBtn.disabled = true;
 
+    // پہلے LocalStorage سے چیک کریں (اگر آف لائن ہو)
+    let localStoreKey = "bursa_cust_" + searchPhone;
+    let localData = JSON.parse(localStorage.getItem(localStoreKey) || "[]");
+
+    if (!navigator.onLine && localData.length > 0) {
+        searchBtn.innerText = "تلاش کریں";
+        searchBtn.disabled = false;
+        populateSelectDropdown(localData);
+        return;
+    }
+
+    // اگر آن لائن ہے تو Firebase سے ڈیٹا لائیں
     db.ref('customers/' + searchPhone).once('value')
     .then(function(snapshot) {
         searchBtn.innerText = "تلاش کریں";
@@ -346,13 +391,15 @@ function searchCustomer() {
                 let item = childSnapshot.val();
                 if (typeof item === 'object' && item !== null) {
                     item.firebaseKey = childSnapshot.key;
-                    if (!item.name) {
-                        item.name = "گاہک (بغیر نام)";
-                    }
+                    if (!item.name) item.name = "گاہک (بغیر نام)";
                     dataList.push(item);
                 }
             });
+            // LocalStorage اپ ڈیٹ کر دیں
+            localStorage.setItem(localStoreKey, JSON.stringify(dataList));
             populateSelectDropdown(dataList);
+        } else if (localData.length > 0) {
+            populateSelectDropdown(localData);
         } else {
             alert("اس نمبر کا کوئی ریکارڈ نہیں ملا!");
             document.getElementById('searchResultsDiv').style.display = 'none';
@@ -361,7 +408,11 @@ function searchCustomer() {
     .catch(function(error) {
         searchBtn.innerText = "تلاش کریں";
         searchBtn.disabled = false;
-        alert("تلاش میں خرابی: " + error.message);
+        if (localData.length > 0) {
+            populateSelectDropdown(localData);
+        } else {
+            alert("ریکارڈ نہیں مل سکا (آف لائن موڈ)");
+        }
     });
 }
 
@@ -391,7 +442,7 @@ function onCustomerSelected() {
     let index = document.getElementById('customerSelect').value;
     if (index !== "") {
         let selectedCustomer = currentSearchResults[index];
-        document.getElementById('oldCustomerKey').value = selectedCustomer.firebaseKey;
+        document.getElementById('oldCustomerKey').value = selectedCustomer.firebaseKey || '';
         fillFormData(selectedCustomer);
     }
 }
@@ -407,6 +458,7 @@ function fillFormData(data) {
             }
         }
     }
+    calculateBalance();
 }
 
 function sendWhatsApp() {
