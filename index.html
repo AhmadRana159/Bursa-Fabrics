@@ -574,7 +574,7 @@
                 <div class="row"><label>کمر:</label><input type="text" id="kamar"></div>   
                 <div class="row"><label>دامن سائيز:</label><input type="text" id="daman"></div> 
                 <div class="row"><label>گلا:</label><input type="text" id="gala"></div>
-                <div class="row"><label>گلا قسم:</label><select id="galaType"><option value="بین">بین</option><option value="کالر">کالر</option></select></div>
+                <div class="row"><label>گلا قسم:</label><select id="galaType"><option value=" بین">بین</option><option value="کالر">کالر</option></select></div>
                 <div class="row"><label>موڈا:</label><input type="text" id="moda"></div>
                 <div class="row"><label>کف سائز:</label><input type="text" id="cuff"></div>        
             </div>
@@ -619,7 +619,7 @@
             <div class="row"><label>کل رقم:</label><input type="text" id="totalAmount" oninput="calculateBalance()" placeholder="0"></div>
             <div class="row"><label>ایڈوانس:</label><input type="text" id="advanceAmount" oninput="calculateBalance()" placeholder="0"></div>
             <div class="row"><label>بقایا رقم:</label><input type="text" id="remainingAmount" readonly placeholder="0" style="background-color: #e9ecef; font-weight: bold;"></div>
-            <div class="row"><label>دستخط: </label><input type="text" readonly style="border:none; border-bottom:1px solid #000;"></div>
+            <div class="row"><label>دستخط: </label>
         </div>
 
         <!-- پرنٹ کے لیے نوٹ -->
@@ -651,7 +651,7 @@ function checkLogin() {
     let p = document.getElementById('passInput').value.trim();
     let err = document.getElementById('loginError');
 
-    if (u === "bursa" && p === "1234") {
+    if (u === "Ranaamir" && p === "1530") {
         localStorage.setItem("bursa_is_logged_in", "true");
         document.getElementById('loginOverlay').style.display = 'none';
         document.getElementById('mainReceipt').style.display = 'block';
