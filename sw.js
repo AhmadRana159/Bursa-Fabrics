@@ -450,7 +450,16 @@
             }
         }
     </style>
-</head>
+        
+</head>const firebaseConfig = {
+  apiKey: "AIzaSy...",
+  authDomain: "your-project.firebaseapp.com",
+  projectId: "your-project-id",
+  storageBucket: "your-project.appspot.com",
+  messagingSenderId: "123456789",
+  appId: "1:12345:web:abcde"
+};
+
 <body>
 
 <!-- لاگ ان کارڈ -->
