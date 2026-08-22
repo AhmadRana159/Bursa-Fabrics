@@ -10,6 +10,7 @@
 
     <!-- Firebase v8.10.1 (Stable CDN) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <style>
@@ -449,8 +450,6 @@
             }
         }
     </style>
-    <link rel="manifest" href="manifest.json">
-
 </head>
 <body>
 
@@ -495,11 +494,13 @@
         <i class="fa-solid fa-right-from-bracket"></i> لاگ آؤٹ
     </button>
 
-    <!-- QR کوڈ -->
-    <div class="location-qr-container">
-        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=BURSA%20FABRICS%20AND%20TAILOR%0A%D8%AE%D8%A7%D9%86%DA%A9%DB%8C%20%D8%B1%D9%88%DA%88%20%D8%A8%D8%A7%D9%8B%D9%85%D9%82%D8%A7%D8%A8%D9%84%20%D8%AC%D9%8DA%D8%B2%DA%C1%20%DA%AF%D8%A7%DB%81%20%D8%B3%D8%A7%D8%B1%D9%88%DA%A9%DB%8C%20%DA%86%DB%8B%D9%87" alt="Shop QR Code">
-        <span>ایڈریس کیو آر</span>
-    </div>
+<!-- QR کوڈ -->
+<div class="location-qr-container">
+    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=BURSA%20FABRICS%20AND%20TAILOR%0A%D8%AE%D8%A7%D9%86%DA%A9%DB%8C%20%D8%B1%D9%88%DA%88%20%D8%A8%D9%84%D9%85%D9%82%D8%A7%D8%A8%D9%84%20%D8%AC%D9%86%D8%A7%D8%B2%DB%81%20%DA%AF%D8%A7%DB%81%20%D8%B3%D8%A7%D8%B1%D9%88%DA%A9%DB%8C%20%DA%86%DB%8C%D9%85%DB%81" alt="Shop QR Code">
+    <span>ایڈریس کیو آر</span>
+</div>
+
+
 
     <div class="header">
         <h3>BURSA FABRICS AND TAILOR</h3>
@@ -538,6 +539,7 @@
             <div class="row"><label>بکنگ تاریخ:</label><input type="date" id="bookingDate"></div>
             <div class="row"><label>واپسی تاریخ:</label><input type="date" id="returnDate"></div>
             <div class="row"><label>سلائی:</label><select id="stitching"><option value="سنگل">سنگل</option><option value="ڈبل">ڈبل</option></select></div>
+             
             <div class="row">
                 <label>اسٹیٹس:</label>
                 <select id="suitStatus">
@@ -560,6 +562,7 @@
                     <option value="10">10</option>
                 </select>
             </div>
+            <div class="row"><label>گاؤں :</label><input type="text" id="gaon"></div>
         </div>
 
         <!-- قمیض کی پیمائش (عنوان) -->
@@ -579,20 +582,21 @@
                 <div class="row"><label>گلا قسم:</label><select id="galaType"><option value=" بین">بین</option><option value="کالر">کالر</option></select></div>
                 <div class="row"><label>موڈا:</label><input type="text" id="moda"></div>
                 <div class="row"><label>کف سائز:</label><input type="text" id="cuff"></div>        
+                <div class="row"><label>کہنی:</label><input type="text" id="kuhni"></div> 
             </div>
 
             <div class="pemaish-col">
-                <div class="row"><label>کہنی:</label><input type="text" id="kuhni"></div> 
                 <div class="row"><label>کندھا:</label><select id="kondha"><option value="نارمل">نارمل</option><option value="ڈیزائن">ڈیزائن</option></select></div>     
                 <div class="row"><label>سامنے جیب:</label><select id="frontPocket"><option value="ہاں">ہاں</option><option value="نہیں">نہیں</option></select></div>
-                <div class="row"><label>سامنے جیب کا ڈیزائن:</label><select id="frontPocketDesign"><option value="ہاں">ہاں</option><option value="نہیں">نہیں</option></select></div>
+                <div class="row"><label>سامنے جیب کا ڈیزائن:</label><select id="frontPocketDesign"><option value="نہیں">نہیں</option><option value="ہاں">ہاں</option></select></div>
                 <div class="row"><label>سائیڈ جیب:</label><select id="sidePocket"><option value="1">1</option><option value="2">2</option></select></div>
                 <div class="row"><label>دامن قسم:</label><select id="damanType"><option value="گول">گول</option><option value="چورس">چورس</option></select></div>
                 <div class="row"><label>کالر نوک:</label><select id="collarNok"><option value="فرینچ">فرینچ</option><option value="گول">گول</option></select></div>        
                 <div class="row"><label>بین پٹی:</label><select id="banPatti"><option value="نارمل">نارمل</option><option value="ڈیزائن">ڈیزائن</option></select></div>
                 <div class="row"><label>بین:</label><select id="ban"><option value="سادہ">سادہ</option><option value="ڈیزائن">ڈیزائن</option></select></div>
                 <div class="row"><label>کف ڈیزائن:</label><select id="cuffDesign"><option value="گول">گول</option><option value="چورس">چورس</option></select></div>        
-                <div class="row"><label>چاک پٹی بٹن:</label><select id="chakpatiButton"><option value="ہاں">ہاں</option><option value="نہیں">نہیں</option></select></div>
+                <div class="row"><label>چاک پٹی بٹن:</label><select id="chakpatiButton"><option value="نہیں">نہیں</option><option value="ہاں">ہاں</option></select></div>
+                <div class="row"><label>دھاگہ :</label><select id="dhaga"><option value="سادہ">سادہ</option><option value="سلکی">سلکی</option></select></div>        
             </div>
         </div>
 
@@ -610,8 +614,8 @@
 
             <div class="pemaish-col">
                 <div class="row"><label>پانچہ:</label><input type="text" id="panja"></div>      
-                <div class="row"><label>جالی:</label><select id="jaali"><option value="ہاں">ہاں</option><option value="نہیں">نہیں</option></select></div>
-                <div class="row"><label>پانچہ ڈیزائن:</label><select id="panchaDesign"><option value="ہاں">ہاں</option><option value="نہیں">نہیں</option></select></div>
+                <div class="row"><label>جالی:</label><select id="jaali"><option value="نہیں">نہیں</option><option value="ہاں">ہاں</option></select></div>
+                <div class="row"><label>پانچہ ڈیزائن:</label><select id="panchaDesign"><option value="نہیں">نہیں</option><option value="ہاں">ہاں</option></select></div>
             </div>
         </div>
 
@@ -621,12 +625,12 @@
             <div class="row"><label>کل رقم:</label><input type="text" id="totalAmount" oninput="calculateBalance()" placeholder="0"></div>
             <div class="row"><label>ایڈوانس:</label><input type="text" id="advanceAmount" oninput="calculateBalance()" placeholder="0"></div>
             <div class="row"><label>بقایا رقم:</label><input type="text" id="remainingAmount" readonly placeholder="0" style="background-color: #e9ecef; font-weight: bold;"></div>
-            <div class="row"><label>دستخط: </label>
+            <div class="row"><label>دستخط: </label></div>
         </div>
 
         <!-- پرنٹ کے لیے نوٹ -->
         <div class="print-note">
-            نوٹ: مقررہ تاریخ کے بعد 30 دن کے اندر اندر اپنا سوٹ لے جائیں اس کے بعد ہم ذمہ دار نہ ہوں گے۔
+            نوٹ: برائے مہربانی مقررہ تاریخ کے بعد 30 دن کے اندر اندر اپنا سوٹ لے جائیں اس کے بعد ہم ذمہ دار نہ ہوں گے۔شکریہ 
         </div>
 
         <!-- بٹنز -->
@@ -639,48 +643,7 @@
 </div>
 
 <script>
-// ------------- سیشن اور لاگ ان لاجک -------------
-
-window.onload = function() {
-    if (localStorage.getItem("bursa_is_logged_in") === "true") {
-        document.getElementById('loginOverlay').style.display = 'none';
-        document.getElementById('mainReceipt').style.display = 'block';
-    }
-};
-
-function checkLogin() {
-    let u = document.getElementById('userInput').value.trim();
-    let p = document.getElementById('passInput').value.trim();
-    let err = document.getElementById('loginError');
-
-    if (u === "Ranaamir" && p === "1530") {
-        localStorage.setItem("bursa_is_logged_in", "true");
-        document.getElementById('loginOverlay').style.display = 'none';
-        document.getElementById('mainReceipt').style.display = 'block';
-        err.style.display = 'none';
-    } else {
-        err.style.display = 'block';
-    }
-}
-
-function logout() {
-    localStorage.removeItem("bursa_is_logged_in");
-    document.getElementById('mainReceipt').style.display = 'none';
-    document.getElementById('loginOverlay').style.display = 'flex';
-    document.getElementById('userInput').value = '';
-    document.getElementById('passInput').value = '';
-}
-
-document.addEventListener("keydown", function(e) {
-    if (e.key === "Enter") {
-        if (document.getElementById('loginOverlay').style.display !== 'none') {
-            checkLogin();
-        }
-    }
-});
-
-// ------------- فارم لاجک -------------
-let currentSearchResults = [];
+// ------------- فائر بیس اور لاگ ان لاجک -------------
 
 const firebaseConfig = {
     apiKey: "AIzaSyDgbMDgt40YlJ7X4xdkX6uhS0CFLNBOTJs",
@@ -693,7 +656,63 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
 const db = firebase.database();
+
+// چیک کریں کہ کیا پہلے سے لاگ ان ہے
+auth.onAuthStateChanged((user) => {
+    if (user) {
+        document.getElementById('loginOverlay').style.display = 'none';
+        document.getElementById('mainReceipt').style.display = 'block';
+    } else {
+        document.getElementById('mainReceipt').style.display = 'none';
+        document.getElementById('loginOverlay').style.display = 'flex';
+    }
+});
+
+function checkLogin() {
+    let u = document.getElementById('userInput').value.trim();
+    let p = document.getElementById('passInput').value.trim();
+    let err = document.getElementById('loginError');
+
+    if (!u || !p) {
+        err.style.display = 'block';
+        return;
+    }
+
+    // Username ko email format mein convert karna (jaise pehle discuss hua)
+    let fakeEmail = u + "@bursafabrics.com";
+
+    auth.signInWithEmailAndPassword(fakeEmail, p)
+        .then((userCredential) => {
+            err.style.display = 'none';
+            document.getElementById('userInput').value = '';
+            document.getElementById('passInput').value = '';
+        })
+        .catch((error) => {
+            console.error(error);
+            err.style.display = 'block';
+        });
+}
+
+function logout() {
+    auth.signOut().then(() => {
+        // Automatically onAuthStateChanged screen switch kar dega
+    }).catch((error) => {
+        console.error(error);
+    });
+}
+
+document.addEventListener("keydown", function(e) {
+    if (e.key === "Enter") {
+        if (document.getElementById('loginOverlay').style.display !== 'none') {
+            checkLogin();
+        }
+    }
+});
+
+// ------------- فارم لاجک -------------
+let currentSearchResults = [];
 
 function calculateBalance() {
     let total = parseFloat(document.getElementById('totalAmount').value) || 0;
@@ -829,19 +848,14 @@ function saveData() {
         remainingAmount: document.getElementById('remainingAmount').value
     };
 
-    try {
-        db.ref('customers/' + cleanPh + '/' + safeName).set(formData);
-    } catch (err) {
-        console.log("Offline mode active");
-    }
-
-    let offlineKey = "bursa_" + cleanPh + "_" + safeName;
-    localStorage.setItem(offlineKey, JSON.stringify(formData));
-
-    alert("ڈیٹا کامیابی سے محفوظ ہو گیا!");
-    
-    // ڈیٹا محفوظ یا اپ ڈیٹ ہونے کے بعد فارم خود بخود صاف ہو جائے گا
-    resetForm();
+    db.ref('customers/' + cleanPh + '/' + safeName).set(formData)
+    .then(() => {
+        alert("ڈیٹا کامیابی سے محفوظ ہو گیا!");
+        resetForm();
+    })
+    .catch((error) => {
+        alert("ڈیٹا محفوظ کرنے میں خرابی: " + error.message);
+    });
 }
 
 function searchCustomer() {
@@ -921,6 +935,7 @@ function onCustomerSelected() {
 function fillFormData(data) {
     for (let key in data) {
         let element = document.getElementById(key);
+        import('https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js'); // safe guard
         if (element) {
             if (element.type === 'date') {
                 element.value = formatDate(data[key]);
