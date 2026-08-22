@@ -8,12 +8,12 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "logo.png",
+      "src": "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=192&h=192&fit=crop",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "logo.png",
+      "src": "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=512&h=512&fit=crop",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
