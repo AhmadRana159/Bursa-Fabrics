@@ -2,7 +2,8 @@ const CACHE_NAME = 'bursa-fabrics-cache-v1';
 const urlsToCache = [
   '/',
   '/index.html',
-  '/manifest.json'
+  '/manifest.json',
+  '/logo.png'
 ];
 
 // Install Event
