@@ -16,6 +16,23 @@
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #eef2f5; padding: 15px; margin: 0; }
         
+        /* نیٹ ورک سٹیٹس بار */
+        #networkStatus {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 10000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            display: none;
+            transition: all 0.3s ease;
+        }
+        .net-online { background: #27ae60; color: white; }
+        .net-offline { background: #e74c3c; color: white; }
+
         /* ------------ جدید اور خوبصورت لاگ ان اسکرین ------------ */
         #loginOverlay {
             position: fixed;
@@ -335,7 +352,7 @@
 
         /* ---------------- پرنٹنگ سیٹنگ ---------------- */
         @media print { 
-            #loginOverlay { display: none !important; }
+            #loginOverlay, #networkStatus { display: none !important; }
             @page {
                 size: A5 portrait;
                 margin: 5mm; 
@@ -449,15 +466,11 @@
             }
         }
     </style>
-    <link rel="manifest" href="manifest.json">
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js')
-      .then(() => console.log('Service Worker Registered'));
-  }
-</script>
 </head>
 <body>
+
+<!-- انٹرنیٹ کنکشن اسٹیٹس انڈیکیٹر -->
+<div id="networkStatus">انٹرنیٹ کنکشن چیک ہو رہا ہے...</div>
 
 <!-- لاگ ان کارڈ -->
 <div id="loginOverlay">
@@ -502,9 +515,11 @@
 
 <!-- QR کوڈ -->
 <div class="location-qr-container">
-    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=BURSA%20FABRICS%20AND%20TAILOR%0A%D8%AE%D8%A7%D9%86%DA%A9%DB%8C%20%D8%B1%D9%88%DA%88%20%D8%A8%D9%84%D9%85%D9%82%D8%A7%D8%A8%D9%84%20%D8%AC%D9%86%D8%A7%D8%B2%DB%81%20%DA%AF%D8%A7%DB%81%20%D8%B3%D8%A7%D8%B1%D9%88%DA%A9%DB%8C%20%DA%8C%DB%8C%D9%85%DB%81" alt="Shop QR Code">
+    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=BURSA%20FABRICS%20AND%20TAILOR%0A%D8%AE%D8%A7%D9%86%DA%A9%DB%8C%20%D8%B1%D9%88%DA%83%20%D8%A8%D9%84%D9%85%D9%82%D8%A7%D8%A8%D9%84%20%D8%AC%D9%86%D8%A7%D8%B2%DB%81%20%DA%AF%D8%A7%DB%81%20%D8%B3%D8%A7%D8%B1%D9%88%DA%A9%DB%8C%20%DA%86%DB%8C%D9%85%DB%81" alt="Shop QR Code">
     <span>ایڈریس کیو آر</span>
 </div>
+
+
 
     <div class="header">
         <h3>BURSA FABRICS AND TAILOR</h3>
@@ -586,18 +601,17 @@
                 <div class="row"><label>گلا قسم:</label><select id="galaType"><option value=" بین">بین</option><option value="کالر">کالر</option></select></div>
                 <div class="row"><label>موڈا:</label><input type="text" id="moda"></div>
                 <div class="row"><label>کف سائز:</label><input type="text" id="cuff"></div>        
-                </div>
+                <div class="row"><label>کہنی:</label><input type="text" id="kuhni"></div> 
+            </div>
 
             <div class="pemaish-col">
-                <div class="row"><label>کہنی:</label><input type="text" id="kuhni"></div> 
-            
-                <div class="row"><label>کندھا:</label><input type="text" id="kandha"></div>
+                <div class="row"><label>کندھا:</label><select id="kondha"><option value="نارمل">نارمل</option><option value="ڈیزائن">ڈیزائن</option></select></div>     
                 <div class="row"><label>سامنے جیب:</label><select id="frontPocket"><option value="ہاں">ہاں</option><option value="نہیں">نہیں</option></select></div>
                 <div class="row"><label>سامنے جیب کا ڈیزائن:</label><select id="frontPocketDesign"><option value="نہیں">نہیں</option><option value="ہاں">ہاں</option></select></div>
                 <div class="row"><label>سائیڈ جیب:</label><select id="sidePocket"><option value="1">1</option><option value="2">2</option></select></div>
                 <div class="row"><label>دامن قسم:</label><select id="damanType"><option value="گول">گول</option><option value="چورس">چورس</option></select></div>
                 <div class="row"><label>کالر نوک:</label><select id="collarNok"><option value="فرینچ">فرینچ</option><option value="گول">گول</option></select></div>        
-                
+                <div class="row"><label>بین پٹی:</label><select id="banPatti"><option value="نارمل">نارمل</option><option value="ڈیزائن">ڈیزائن</option></select></div>
                 <div class="row"><label>بین:</label><select id="ban"><option value="سادہ">سادہ</option><option value="ڈیزائن">ڈیزائن</option></select></div>
                 <div class="row"><label>کف ڈیزائن:</label><select id="cuffDesign"><option value="گول">گول</option><option value="چورس">چورس</option></select></div>        
                 <div class="row"><label>چاک پٹی بٹن:</label><select id="chakpatiButton"><option value="نہیں">نہیں</option><option value="ہاں">ہاں</option></select></div>
@@ -648,6 +662,50 @@
 </div>
 
 <script>
+// ------------- سروس ورکر رجسٹر (صرف HTTP/HTTPS پر چلے گا) -------------
+if ('serviceWorker' in navigator && window.location.protocol !== 'file:') {
+    const swCode = `
+        self.addEventListener('install', e => {
+            e.waitUntil(
+                caches.open('bursa-cache-v1').then(cache => {
+                    return cache.addAll(['./', location.href]);
+                })
+            );
+        });
+        self.addEventListener('fetch', e => {
+            e.respondWith(
+                caches.match(e.request).then(res => res || fetch(e.request))
+            );
+        });
+    `;
+    const blob = new Blob([swCode], {type: 'application/javascript'});
+    const swUrl = URL.createObjectURL(blob);
+    navigator.serviceWorker.register(swUrl).then(() => {
+        console.log("Offline Service Worker Registered Successfully!");
+    }).catch(err => {
+        console.log("Service Worker Registration Failed:", err);
+    });
+}
+
+// نیٹ ورک اسٹیٹس مانیٹر
+window.addEventListener('load', () => {
+    const statusDiv = document.getElementById('networkStatus');
+    function updateNetStatus() {
+        statusDiv.style.display = 'block';
+        if (navigator.onLine) {
+            statusDiv.className = "net-online";
+            statusDiv.innerHTML = '<i class="fa-solid fa-wifi"></i> آن لائن (ڈیٹا سنک ہے)';
+            setTimeout(() => { statusDiv.style.display = 'none'; }, 4000);
+        } else {
+            statusDiv.className = "net-offline";
+            statusDiv.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> آف لائن موڈ (لوکل اسٹوریج فعال)';
+        }
+    }
+    window.addEventListener('online', updateNetStatus);
+    window.addEventListener('offline', updateNetStatus);
+    updateNetStatus();
+});
+
 // ------------- فائر بیس اور لاگ ان لاجک -------------
 
 const firebaseConfig = {
@@ -663,6 +721,9 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
+
+// درست طریقے سے روٹ ریفرنس پر آف لائن کیشنگ اور سنک ایکٹیویٹ کرنا
+db.ref().keepSynced(true);
 
 // چیک کریں کہ کیا پہلے سے لاگ ان ہے
 auth.onAuthStateChanged((user) => {
@@ -701,6 +762,7 @@ function checkLogin() {
 
 function logout() {
     auth.signOut().then(() => {
+        // Automatically onAuthStateChanged screen switch kar dega
     }).catch((error) => {
         console.error(error);
     });
@@ -806,6 +868,8 @@ function saveData() {
         return;
     }
 
+    let safeName = name.replace(/[.#$\/\[\]]/g, "_");
+
     let formData = {
         name: name,
         phone: phone,
@@ -815,182 +879,149 @@ function saveData() {
         stitching: document.getElementById('stitching').value,
         suitStatus: document.getElementById('suitStatus').value,
         suitQty: document.getElementById('suitQty').value,
-        gaon: document.getElementById('gaon').value,
         shirtLen: document.getElementById('shirtLen').value,
-        bazu: document.getElementById('bazu').value,
-        teera: document.getElementById('teera').value,
-        chest: document.getElementById('chest').value,
-        takhti: document.getElementById('takhti').value,
-        kamar: document.getElementById('kamar').value,
-        daman: document.getElementById('daman').value,
-        gala: document.getElementById('gala').value,
-        galaType: document.getElementById('galaType').value,
-        moda: document.getElementById('moda').value,
-        cuff: document.getElementById('cuff').value,
         kuhni: document.getElementById('kuhni').value,
-        kandha: document.getElementById('kandha').value,
+        bazu: document.getElementById('bazu').value,
         frontPocket: document.getElementById('frontPocket').value,
         frontPocketDesign: document.getElementById('frontPocketDesign').value,
+        teera: document.getElementById('teera').value,
+        kondha: document.getElementById('kondha').value,
+        chest: document.getElementById('chest').value,
         sidePocket: document.getElementById('sidePocket').value,
+        kamar: document.getElementById('kamar').value,
         damanType: document.getElementById('damanType').value,
+        daman: document.getElementById('daman').value,
         collarNok: document.getElementById('collarNok').value,
+        gala: document.getElementById('gala').value,
+        banPatti: document.getElementById('banPatti').value,
+        galaType: document.getElementById('galaType').value,
         ban: document.getElementById('ban').value,
+        moda: document.getElementById('moda').value,
         cuffDesign: document.getElementById('cuffDesign').value,
+        cuff: document.getElementById('cuff').value,
+        takhti: document.getElementById('takhti').value,
         chakpatiButton: document.getElementById('chakpatiButton').value,
-        dhaga: document.getElementById('dhaga').value,
         shalwarLen: document.getElementById('shalwarLen').value,
+        jaali: document.getElementById('jaali').value,
+        panja: document.getElementById('panja').value,
+        panchaDesign: document.getElementById('panchaDesign').value,
+        shalwarPocket: document.getElementById('shalwarPocket').value,
         ghera: document.getElementById('ghera').value,
         asan: document.getElementById('asan').value,
-        shalwarPocket: document.getElementById('shalwarPocket').value,
-        panja: document.getElementById('panja').value,
-        jaali: document.getElementById('jaali').value,
-        panchaDesign: document.getElementById('panchaDesign').value,
         totalAmount: document.getElementById('totalAmount').value,
         advanceAmount: document.getElementById('advanceAmount').value,
         remainingAmount: document.getElementById('remainingAmount').value
     };
 
-    let oldKey = document.getElementById('oldCustomerKey').value;
-    let customerRef = db.ref('customers');
-
-    if (oldKey) {
-        customerRef.child(oldKey).set(formData).then(() => {
-            alert("ڈیٹا کامیابی سے اپ ڈیٹ ہو گیا ہے!");
-        }).catch((error) => {
-            alert("خرابی پیش آئی: " + error.message);
-        });
-    } else {
-        let newRef = customerRef.push();
-        newRef.set(formData).then(() => {
-            document.getElementById('oldCustomerKey').value = newRef.key;
-            alert("ڈیٹا کامیابی سے محفوظ ہو گیا ہے!");
-        }).catch((error) => {
-            alert("خرابی پیش آئی: " + error.message);
-        });
-    }
-}
-
-function searchCustomer() {
-    let searchVal = document.getElementById('searchPhone').value.trim();
-    if (!searchVal) {
-        alert("تلاش کے لیے فون نمبر یا نام درج کریں!");
-        return;
-    }
-
-    let cleanSearch = cleanNumber(searchVal);
-    let dbRef = db.ref('customers');
-
-    dbRef.once('value', (snapshot) => {
-        let results = [];
-        snapshot.forEach((childSnapshot) => {
-            let data = childSnapshot.val();
-            let key = childSnapshot.key;
-            
-            let matchPhone = cleanSearch && data.cleanPhone && data.cleanPhone.includes(cleanSearch);
-            let matchName = data.name && data.name.toLowerCase().includes(searchVal.toLowerCase());
-
-            if (matchPhone || matchName) {
-                results.push({ key: key, ...data });
-            }
-        });
-
-        if (results.length === 0) {
-            alert("کوئی ریکارڈ نہیں ملا!");
-            document.getElementById('searchResultsDiv').style.display = 'none';
-            return;
-        }
-
-        currentSearchResults = results;
-        let selectTag = document.getElementById('customerSelect');
-        selectTag.innerHTML = '<option value="">-- نام منتخب کریں --</option>';
-
-        results.forEach((item, index) => {
-            let opt = document.createElement('option');
-            opt.value = index;
-            opt.textContent = `${item.name} (${item.phone})`;
-            selectTag.appendChild(opt);
-        });
-
-        document.getElementById('searchResultsDiv').style.display = 'block';
-        if (results.length === 1) {
-            selectTag.value = "0";
-            onCustomerSelected();
-        }
+    db.ref('customers/' + cleanPh + '/' + safeName).set(formData)
+    .then(() => {
+        alert("ڈیٹا کامیابی سے محفوظ ہو گیا! (آف لائن ہونے کی صورت میں انٹرنیٹ ملتے ہی خود بخود سنک ہو جائے گا)");
+        resetForm();
+    })
+    .catch((error) => {
+        alert("ڈیٹا محفوظ کرنے میں خرابی: " + error.message);
     });
 }
 
-function onCustomerSelected() {
-    let idx = document.getElementById('customerSelect').value;
-    if (idx === "") return;
+function searchCustomer() {
+    let inputVal = document.getElementById('searchPhone').value;
+    let searchPhone = cleanNumber(inputVal);
+    let searchBtn = document.getElementById('searchBtn');
 
-    let customer = currentSearchResults[idx];
-    if (!customer) return;
-
-    document.getElementById('oldCustomerKey').value = customer.key;
-    document.getElementById('name').value = customer.name || '';
-    document.getElementById('phone').value = customer.phone || '';
-    document.getElementById('bookingDate').value = formatDate(customer.bookingDate) || '';
-    document.getElementById('returnDate').value = formatDate(customer.returnDate) || '';
-    document.getElementById('stitching').value = customer.stitching || 'سنگل';
-    document.getElementById('suitStatus').value = customer.suitStatus || 'جاری';
-    document.getElementById('suitQty').value = customer.suitQty || '1';
-    document.getElementById('gaon').value = customer.gaon || '';
-    
-    document.getElementById('shirtLen').value = customer.shirtLen || '';
-    document.getElementById('bazu').value = customer.bazu || '';
-    document.getElementById('teera').value = customer.teera || '';
-    document.getElementById('chest').value = customer.chest || '';
-    document.getElementById('takhti').value = customer.takhti || '';
-    document.getElementById('kamar').value = customer.kamar || '';
-    document.getElementById('daman').value = customer.daman || '';
-    document.getElementById('gala').value = customer.gala || '';
-    document.getElementById('galaType').value = customer.galaType || 'بین';
-    document.getElementById('moda').value = customer.moda || '';
-    document.getElementById('cuff').value = customer.cuff || '';
-    document.getElementById('kuhni').value = customer.kuhni || '';
-    document.getElementById('kandha').value = customer.kandha || '';
-    document.getElementById('frontPocket').value = customer.frontPocket || 'ہاں';
-    document.getElementById('frontPocketDesign').value = customer.frontPocketDesign || 'نہیں';
-    document.getElementById('sidePocket').value = customer.sidePocket || '1';
-    document.getElementById('damanType').value = customer.damanType || 'گول';
-    document.getElementById('collarNok').value = customer.collarNok || 'فرینچ';
-    document.getElementById('ban').value = customer.ban || 'سادہ';
-    document.getElementById('cuffDesign').value = customer.cuffDesign || 'گول';
-    document.getElementById('chakpatiButton').value = customer.chakpatiButton || 'نہیں';
-    document.getElementById('dhaga').value = customer.dhaga || 'سادہ';
-
-    document.getElementById('shalwarLen').value = customer.shalwarLen || '';
-    document.getElementById('ghera').value = customer.ghera || '';
-    document.getElementById('asan').value = customer.asan || '';
-    document.getElementById('shalwarPocket').value = customer.shalwarPocket || 'ہاں';
-    document.getElementById('panja').value = customer.panja || '';
-    document.getElementById('jaali').value = customer.jaali || 'نہیں';
-    document.getElementById('panchaDesign').value = customer.panchaDesign || 'نہیں';
-
-    document.getElementById('totalAmount').value = customer.totalAmount || '';
-    document.getElementById('advanceAmount').value = customer.advanceAmount || '';
-    document.getElementById('remainingAmount').value = customer.remainingAmount || '';
-}
-
-function sendWhatsApp() {
-    let phone = document.getElementById('phone').value.trim();
-    let name = document.getElementById('name').value.trim();
-    let returnDate = document.getElementById('returnDate').value.trim();
-    let remaining = document.getElementById('remainingAmount').value.trim() || '0';
-
-    if (!phone) {
-        alert("واٹس ایپ پر بھیجنے کے لیے فون نمبر موجود ہونا ضروری ہے!");
+    if (!searchPhone) {
+        alert("تلاش کے لیے فون نمبر درج کریں!");
         return;
     }
 
-    let cleanPh = cleanNumber(phone);
-    if (cleanPh.startsWith('0')) {
-        cleanPh = '92' + cleanPh.substring(1);
-    }
+    searchBtn.innerText = "تلاش جاری ہے...";
+    searchBtn.disabled = true;
 
-    let msg = `السلام علیکم ${name}! آپ کا سوٹ BURSA FABRICS AND TAILOR پر تیار ہو رہا ہے۔ واپسی کی تاریخ: ${returnDate} ہے۔ بقایا رقم: ${remaining} روپے ہے۔ شکریہ!`;
-    let url = `https://wa.me/${cleanPh}?text=${encodeURIComponent(msg)}`;
-    window.open(url, '_blank');
+    db.ref('customers/' + searchPhone).once('value')
+    .then(function(snapshot) {
+        searchBtn.innerText = "تلاش کریں";
+        searchBtn.disabled = false;
+
+        if (snapshot.exists()) {
+            let dataList = [];
+            snapshot.forEach(function(childSnapshot) {
+                let item = childSnapshot.val();
+                if (typeof item === 'object' && item !== null) {
+                    item.firebaseKey = childSnapshot.key;
+                    if (!item.name) {
+                        item.name = "گاہک (بغیر نام)";
+                    }
+                    dataList.push(item);
+                }
+            });
+            populateSelectDropdown(dataList);
+        } else {
+            alert("اس نمبر کا کوئی ریکارڈ نہیں ملا!");
+            document.getElementById('searchResultsDiv').style.display = 'none';
+        }
+    })
+    .catch(function(error) {
+        searchBtn.innerText = "تلاش کریں";
+        searchBtn.disabled = false;
+        alert("تلاش میں خرابی: " + error.message);
+    });
+}
+
+function populateSelectDropdown(list) {
+    currentSearchResults = list;
+    let select = document.getElementById('customerSelect');
+    select.innerHTML = '<option value="">-- گاہک کا نام منتخب کریں --</option>';
+
+    list.forEach(function(item, index) {
+        let opt = document.createElement('option');
+        opt.value = index;
+        let custName = item.name ? item.name : "نامعلوم نام";
+        let bDate = item.bookingDate ? formatDate(item.bookingDate) : 'تاريخ نہیں';
+        opt.textContent = custname + " (بکنگ تاریخ: " + bDate + ")";
+        select.appendChild(opt);
+    });
+
+    document.getElementById('searchResultsDiv').style.display = 'block';
+
+    if (list.length === 1) {
+        select.value = 0;
+        onCustomerSelected();
+    }
+}
+
+function onCustomerSelected() {
+    let index = document.getElementById('customerSelect').value;
+    if (index !== "") {
+        let selectedCustomer = currentSearchResults[index];
+        document.getElementById('oldCustomerKey').value = selectedCustomer.firebaseKey;
+        fillFormData(selectedCustomer);
+    }
+}
+
+function fillFormData(data) {
+    for (let key in data) {
+        let element = document.getElementById(key);
+        if (element) {
+            if (element.type === 'date') {
+                element.value = formatDate(data[key]);
+            } else {
+                element.value = data[key] || '';
+            }
+        }
+    }
+    calculateBalance();
+}
+
+function sendWhatsApp() {
+    let name = document.getElementById('name').value;
+    let phone = document.getElementById('phone').value.trim();
+    let status = document.getElementById('suitStatus').value;
+    let qty = document.getElementById('suitQty').value;
+    
+    if (!phone) { alert("فون نمبر درج کریں!"); return; }
+    let fullPhone = '92' + cleanNumber(phone);
+    let msg = status === "مکمل" ? `السلام علیکم ${name} صاحب، آپ کے (${qty}) سوٹ سلائی ہو کر مکمل ہو چکے ہیں۔` : `السلام علیکم ${name} صاحب، آپ کے (${qty}) سوٹ کی سلائی جاری ہے۔`;
+    
+    window.open(`https://wa.me/${fullPhone}?text=${encodeURIComponent(msg)}`, "_blank");
 }
 </script>
 
