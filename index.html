@@ -533,6 +533,21 @@ try {
 
 const auth = firebase.auth();
 const db = firebase.database();
+// پیج کھلتے ہی یہ چیک کرے گا کہ کیا یوزر پہلے سے لاگ ان ہے؟
+window.addEventListener('DOMContentLoaded', () => {
+    let isLoggedIn = localStorage.getItem('isLoggedIn');
+    let loginOverlay = document.getElementById('loginOverlay');
+    let mainReceipt = document.getElementById('mainReceipt');
+
+    // اگر پہلے سے لاگ ان ہیں تو ڈیش بورڈ دکھاؤ، ورنہ لاگ ان اسکرین
+    if (isLoggedIn === 'true') {
+        if (loginOverlay) loginOverlay.style.display = 'none';
+        if (mainReceipt) mainReceipt.style.display = 'flex';
+    } else {
+        if (loginOverlay) loginOverlay.style.display = 'flex';
+        if (mainReceipt) mainReceipt.style.display = 'none';
+    }
+});
 
 auth.onAuthStateChanged((user) => {
     if (user) {
