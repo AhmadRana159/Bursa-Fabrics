@@ -7,8 +7,7 @@
   "theme_color": "#000000",
   "icons": [
     {
-      "src": "qrcode.png",
-      "sizes": "192x192",
+      "src": "logo.png",
       "type": "image/png"
     }
   ]
