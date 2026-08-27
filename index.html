@@ -294,8 +294,6 @@
         }
     </style>
     <link rel="manifest" href="manifest.json">
-    
-   
 
 </head>
 <body>
@@ -367,6 +365,7 @@
     <img src="qrcode.png" alt="Shop QR Code">
     <span>ایڈریس کیو آر</span>
 </div>
+
     <div class="header">
         <h3>BURSA FABRICS AND TAILOR</h3>
         <div class="phone-container">
@@ -608,8 +607,25 @@ function checkLogin() {
 }
 
 function logout() {
-    auth.signOut().then(() => {}).catch((error) => {
+    // 1. لاگ آؤٹ کرنے سے پہلے کسٹمرز کا ڈیٹا نکال کر سیف کر لیں
+    let savedCustomers = localStorage.getItem('bursa_customers');
+
+    // 2. فائر بیس سے لاگ آؤٹ کریں
+    auth.signOut().then(() => {
+        // 3. صرف لاگ ان اسکرین دکھائیں
+        document.getElementById('mainReceipt').style.display = 'none';
+        document.getElementById('loginOverlay').style.display = 'flex';
+
+        // 4. یقینی بنائیں کہ کسٹمرز کا ڈیٹا واپس لوکل اسٹوریج میں محفوظ ہو جائے
+        if (savedCustomers) {
+            localStorage.setItem('bursa_customers', savedCustomers);
+        }
+    }).catch((error) => {
         console.error(error);
+        // اگر فائر بیس سائن آؤٹ میں کوئی ایرر بھی آئے تب بھی ڈیٹا محفوظ رہے
+        if (savedCustomers) {
+            localStorage.setItem('bursa_customers', savedCustomers);
+        }
     });
 }
 
@@ -1043,37 +1059,158 @@ document.addEventListener('click', function(e) {
     }
 });
 function startRealtimeSync() {
-    // پہلے چیک کریں کہ یوزر لاگ ان ہو چکا ہے یا نہیں
     firebase.auth().onAuthStateChanged((user) => {
         if (user) {
-            // جب یوزر لاگ ان ہو جائے، تب ریل ٹائم لسنر آن کریں
+            // 1. فائر بیس سے ریل ٹائم لسنر
             db.ref('customers').on('value', (snapshot) => {
-                let allCustomersForLocal = [];
+                let fbCustomers = [];
                 
                 snapshot.forEach((phoneSnapshot) => {
                     phoneSnapshot.forEach((nameSnapshot) => {
                         let data = nameSnapshot.val();
                         if (data) {
-                            allCustomersForLocal.push(data);
+                            fbCustomers.push(data);
                         }
                     });
                 });
 
-                // لوکل اسٹوریج کو فورا اپ ڈیٹ کریں
-                localStorage.setItem('bursa_customers', JSON.stringify(allCustomersForLocal));
-                console.log("Real-time background sync active & updated! ✅");
+                if (fbCustomers.length > 0) {
+                    let localCustomers = JSON.parse(localStorage.getItem('bursa_customers') || '[]');
+                    let mergedMap = new Map();
+
+                    localCustomers.forEach(c => {
+                        let uniqueKey = c.cleanPhone + "_" + c.name.toLowerCase();
+                        mergedMap.set(uniqueKey, c);
+                    });
+
+                    fbCustomers.forEach(fbC => {
+                        let uniqueKey = (fbC.cleanPhone || cleanNumber(fbC.phone)) + "_" + fbC.name.toLowerCase();
+                        if (!mergedMap.has(uniqueKey)) {
+                            mergedMap.set(uniqueKey, fbC);
+                        }
+                    });
+
+                    let finalCustomersList = Array.from(mergedMap.values());
+                    localStorage.setItem('bursa_customers', JSON.stringify(finalCustomersList));
+                }
             });
         }
     });
 }
 
-// جب پیج لوڈ ہو تو سنک کو کال کریں
+function startRealtimeSync() {
+    firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+            // فائر بیس سرور سے لائیو کنکشن چیک
+            db.ref('.info/connected').on('value', (snap) => {
+                if (snap.val() === true) {
+                    pushNestedOfflineDataToFirebase();
+                }
+            });
+
+            // ریل ٹائم سنک (فائر بیس اور لوکل اسٹوریج کو بالکل برابر رکھنے کے لیے)
+            db.ref('customers').on('value', (snapshot) => {
+                let fbCustomers = [];
+                
+                snapshot.forEach((phoneSnapshot) => {
+                    phoneSnapshot.forEach((nameSnapshot) => {
+                        let data = nameSnapshot.val();
+                        if (data) {
+                            fbCustomers.push(data);
+                        }
+                    });
+                });
+
+                // اگر فائر بیس پر ڈیٹا موجود ہے (یا ڈیٹا بیس خالی نہیں ہے)
+                // تو لوکل اسٹوریج کو بالکل فائر بیس کے مطابق سیٹ کر دیں
+                let localCustomers = JSON.parse(localStorage.getItem('bursa_customers') || '[]');
+                let mergedMap = new Map();
+
+                // 1. پہلے فائر بیس والا سارا تازہ ڈیٹا میپ میں ڈالیں
+                fbCustomers.forEach(fbC => {
+                    let uniqueKey = (fbC.cleanPhone || cleanNumber(fbC.phone)) + "_" + fbC.name.toLowerCase();
+                    mergedMap.set(uniqueKey, fbC);
+                });
+
+                // 2. وہ آف لائن لوکل کسٹمرز جو ابھی فائر بیس پر نہیں گئے (نیا ڈیٹا)، انہیں بھی شامل رکھیں تاکہ وہ ضائع نہ ہوں
+                localCustomers.forEach(localC => {
+                    let uniqueKey = localC.cleanPhone + "_" + localC.name.toLowerCase();
+                    let existsInFirebase = fbCustomers.some(fbC => 
+                        (fbC.cleanPhone || cleanNumber(fbC.phone)) === localC.cleanPhone && 
+                        fbC.name.toLowerCase() === localC.name.toLowerCase()
+                    );
+
+                    // اگر یہ لوکل کسٹمر فائر بیس پر نہیں ہے، تو اسے عارضی طور پر لوکل میں رہنے دیں
+                    if (!existsInFirebase && !mergedMap.has(uniqueKey)) {
+                        mergedMap.set(uniqueKey, localC);
+                    }
+                });
+
+                // حتمی لسٹ بنائیں
+                let finalCustomersList = Array.from(mergedMap.values());
+
+                // --- سب سے اہم تبدیلی (ڈیلیشن سنک) ---
+                // اگر فائر بیس پر کوئی کسٹمر ڈیلیٹ ہو چکا ہے، تو وہ فائر بیس کی لسٹ (fbCustomers) میں نہیں ہوگا۔
+                // ہم چیک کریں گے کہ جو فائر بیس پر نہیں ہے، اسے لوکل اسٹوریج سے بھی ہٹا دیا جائے۔
+                let syncedList = finalCustomersList.filter(item => {
+                    let itemKey = (item.cleanPhone || cleanNumber(item.phone)) + "_" + item.name.toLowerCase();
+                    // اگر یہ فائر بیس پر موجود ہے یا پھر یہ کوئی نیا آف لائن کسٹمر ہے جو ابھی فائر بیس پر نہیں گیا، تو رکھو
+                    let isInFirebase = fbCustomers.some(fbC => 
+                        (fbC.cleanPhone || cleanNumber(fbC.phone)) === (item.cleanPhone || cleanNumber(item.phone)) && 
+                        fbC.name.toLowerCase() === item.name.toLowerCase()
+                    );
+                    let isLocalNew = !isInFirebase; // نیا آف لائن کسٹمر
+                    
+                    return isInFirebase || isLocalNew;
+                });
+
+                // اگر فائر بیس سے کوئی چیز اڑی ہے تو وہ یہاں خود بخود فلٹر ہو جائے گی
+                localStorage.setItem('bursa_customers', JSON.stringify(fbCustomers));
+                console.log("ڈیٹا سنک اور ڈیلیشن اپ ڈیٹ ہو گئی ہے! ✅");
+            });
+        }
+    });
+}
+
+// آف لائن ڈیٹا کو فائر بیس پر دھکیلنے کا فنکشن
+function pushNestedOfflineDataToFirebase() {
+    let localCustomers = JSON.parse(localStorage.getItem('bursa_customers') || '[]');
+    
+    localCustomers.forEach(localC => {
+        let cleanPh = localC.cleanPhone || cleanNumber(localC.phone);
+        let name = localC.name;
+
+        if (cleanPh && name) {
+            let firebasePath = 'customers/' + cleanPh + '/' + name;
+            
+            db.ref(firebasePath).once('value', (snapshot) => {
+                if (!snapshot.exists()) {
+                    db.ref(firebasePath).set(localC).then(() => {
+                        console.log("آف لائن ڈیٹا فائر بیس پر پش ہو گیا:", name);
+                    });
+                }
+            });
+        }
+    });
+}
+
 window.addEventListener('DOMContentLoaded', () => {
+    startRealtimeSync();
+
+    window.addEventListener('online', () => {
+        setTimeout(pushNestedOfflineDataToFirebase, 1000);
+    });
+});
+
+// جیسے ہی انٹرنیٹ بحال ہو، فورا سنک کو متحرک کریں
+window.addEventListener('online', () => {
+    console.log("انٹرنیٹ آن ہو گیا ہے، آف لائن ڈیٹا سنک کیا جا رہا ہے...");
     startRealtimeSync();
 });
 
 </script> <!-- یہاں آپ کی فائل کا آخری اسکرپٹ ٹیگ بند ہو رہا ہوگا -->
 <script>
+
     const passwordInput = document.getElementById('passInput');
     const togglePasswordBtn = document.getElementById('togglePassword');
     const eyeIcon = document.getElementById('eyeIcon');
@@ -1117,4 +1254,3 @@ window.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
-
