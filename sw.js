@@ -1,7 +1,8 @@
 const CACHE_NAME = 'bursa-store-v1';
 const urlsToCache = [
     './',
-    './index.html'
+    './index.html',
+    './qrcode.png'  // یہ والی لائن ہم نے کیو آر کی تصویر کو آف لائن کرنے کے لیے پکی ایڈ کر دی ہے
 ];
 
 // 1. انسٹال کرتے وقت فائلیں کیش کرنا
