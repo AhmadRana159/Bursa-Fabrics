@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bursa-store-v2';
+const CACHE_NAME = 'bursa-store-v1';
 const urlsToCache = [
     './',
     './index.html',
