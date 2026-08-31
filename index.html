@@ -14,293 +14,553 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #eef2f5; padding: 15px; margin: 0; }
-        
-        /* لاگ ان اسکرین - محفوظ ڈیزائن */
-        #loginOverlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            box-sizing: border-box;
-            direction: ltr !important;
-            margin: 0;
-            padding: 10px;
-        }
-
-              /* کمپیوٹر اور موبائل دونوں کے لیے بڑی اور بہتر لاگ ان اسکرین */
-        .login-card {
-            background: #ffffff;
-            padding: 45px 35px;
-            border-radius: 24px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
-            width: 100%;
-            max-width: 480px; /* سائز کو مزید بڑا کر دیا گیا ہے تاکہ کمپیوٹر پر نمایاں لگے */
-            text-align: center;
-            position: relative;
-            box-sizing: border-box;
-        }
-
-        .login-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 10px;
-            background: linear-gradient(90deg, #d4af37, #f39c12);
-            border-top-left-radius: 24px;
-            border-top-right-radius: 24px;
-        }
-
-        .login-brand-icon {
-            margin: 0 auto 20px auto;
-            background-color: #000000;
-            width: 180px !important;
-            height: 180px !important;
-            min-width: 180px !important;
-            min-height: 180px !important;
-            border-radius: 70px !important;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-            border: 2.5px solid #f39c12;
-            overflow: hidden !important;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .login-brand-icon img {
-            width: 100% !important;
-            height: 100% !important;
-            object-fit: contain !important;
-            display: block !important;
-        }
-
-        .login-card h2 {
-            margin: 0 0 8px 0 !important;
-            color: #1a252f !important;
-            font-size: 26px !important;
-            font-weight: 900 !important;
-        }
-
-        .login-card p.subtitle {
-            margin: 0 0 25px 0 !important;
-            color: #7f8c8d !important;
-            font-size: 15px !important;
-        }
-
-        .login-field {
-            margin-bottom: 20px;
-            text-align: left;
-        }
-
-        .login-field label {
-            display: block;
-            font-size: 14px;
-            font-weight: bold;
-            color: #34495e;
-            margin-bottom: 6px;
-        }
-
-        .input-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-            width: 100%;
-        }
-
-        .input-wrapper i {
-            position: absolute;
-            left: 15px;
-            color: #95a5a6;
-            font-size: 18px;
-        }
-
-        .login-field input {
-            width: 100%;
-            padding: 14px 14px 14px 45px;
-            border: 1.5px solid #e0e0e0;
-            border-radius: 10px;
-            box-sizing: border-box;
-            font-size: 16px; /* کمپیوٹر پر لکھائی بڑی اور واضح نظر آئے گی */
-            outline: none;
-            background: #f9fbfd;
-            direction: ltr;
-            text-align: left;
-        }
-
-        .login-field input:focus {
-            border-color: #3498db;
-            background: #fff;
-        }
-
-        .login-btn {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #2980b9, #3498db);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 17px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
-            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
-        }
-
-        .login-btn:hover {
-            background: linear-gradient(135deg, #1f618d, #2980b9);
-        }
-
-        #loginError {
-            color: #e74c3c;
-            background: #fde8e8;
-            padding: 8px;
-            border-radius: 6px;
-            border: 1px solid #f8b4b4;
-            font-weight: bold;
-            font-size: 12px;
-            margin-top: 12px;
-            display: none;
-        }
-
-        /* مین فارم کی سیٹنگز */
-        .receipt { 
-            display: none; 
-            position: relative; 
-            max-width: 1100px; 
-            width: 95%; 
-            margin: 20px auto; 
-            background: #ffffff; 
-            padding: 25px; 
-            border: 1px solid #dcdcdc; 
-            border-radius: 8px; 
-            box-sizing: border-box; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
-        }
-        
-        .logout-btn {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            background: #e74c3c;
-            color: white;
-            border: none;
-            padding: 8px 14px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 12px;
-            z-index: 10;
-        }
-
-        .header { 
-            text-align: center; 
-            border-bottom: 2px dashed #333; 
-            padding-bottom: 10px; 
-            margin-bottom: 15px; 
-            padding-left: 100px;
-            padding-right: 100px;
-        }
-        .header h3 { margin: 0 0 5px 0; font-size: 22px; color: #2c3e50; }
-        .header .phone-container { display: inline-flex; flex-direction: column; align-items: flex-start; margin-top: 5px; }
-        .header .phone-num { margin: 2px 0; font-weight: bold; color: #444; font-size: 14px; display: flex; align-items: center; direction: ltr; }
-        .whatsapp-icon { color: #25D366; font-size: 16px; width: 20px; text-align: center; margin-right: 5px; }
-        .icon-spacer { width: 20px; display: inline-block; margin-right: 5px; }
-
-               .location-qr-container {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            text-align: center;
-            background: #fff;
-            padding: 4px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            z-index: 5;
-        }
-        .location-qr-container img { width: 75px; height: 75px; display: block; }
-        .location-qr-container span { font-size: 9px; font-weight: bold; color: #333; display: block; margin-top: 2px; }
-
-        .form-grid { display: flex; flex-wrap: wrap; justify-content: space-between; }
-        .row { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 14px; }
-        .row label { font-weight: bold; width: 42%; color: #34495e; }
-        .row input, .row select { width: 55%; padding: 7px 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; background-color: #fafafa; }
-        .section-title { width: 100%; background: #34495e; color: #ffffff; font-weight: bold; text-align: center; padding: 8px; margin: 15px 0 12px 0; font-size: 15px; border-radius: 4px; box-sizing: border-box; }
-        .btn { width: 100%; padding: 12px; background: #27ae60; color: white; border: none; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; border-radius: 5px; }
-        .print-note { display: none; }
-        .pemaish-container { display: flex; width: 100%; justify-content: space-between; flex-wrap: wrap; }
-
-
-        @media (min-width: 769px) {
-            .pemaish-col { width: 48%; }
-            .basic-info .row { width: 48%; }
-            .basic-info { display: flex; flex-wrap: wrap; justify-content: space-between; width: 100%; }
-        }
-
-        @media (max-width: 768px) { 
-            .receipt { max-width: 100%; padding: 12px; margin: 0 auto; } 
-            .logout-btn { position: static; margin-bottom: 10px; padding: 6px 12px; font-size: 11px; width: auto; float: left; }
-            .location-qr-container { position: static; float: right; margin-bottom: 10px; padding: 2px; }
-            .location-qr-container img { width: 55px; height: 55px; }
-            .location-qr-container span { font-size: 7px; }
-            .header { clear: both; padding-left: 0; padding-right: 0; text-align: center; padding-top: 10px; } 
-            .header h3 { font-size: 16px; line-height: 1.4; margin-top: 5px; } 
-            .pemaish-container { flex-direction: column !important; }
-            .pemaish-col { width: 100% !important; }
-            .row { width: 100% !important; margin-bottom: 8px; } 
-            .row label { width: 40%; font-size: 13px; } 
-            .row input, .row select { width: 58%; font-size: 13px; padding: 5px; } 
-        }
-
-        @media print { 
-            #loginOverlay { display: none !important; }
-            @page { size: A5 portrait; margin: 5mm; }
-            body { background: #fff; padding: 0; margin: 0; -webkit-print-color-adjust: exact; }
-            .btn, .no-print, .logout-btn { display: none !important; } 
-            .receipt { display: block !important; border: none !important; width: 100% !important; max-width: 100% !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; } 
-            .header { padding-bottom: 5px; margin-bottom: 8px; padding-left: 0 !important; padding-right: 65px !important; text-align: center !important; clear: both !important; }
-            .header h3 { font-size: 16px !important; }
-            .location-qr-container { position: absolute !important; top: 0 !important; right: 0 !important; padding: 2px !important; float: none !important; }
-            .location-qr-container img { width: 55px !important; height: 55px !important; }
-            .section-title { padding: 3px; margin: 6px 0; font-size: 12px; background: #34495e !important; color: #fff !important; }
-            .empty-field-print { display: none !important; }
-            body:not(.karigar-mode) .print-note { display: block !important; text-align: center; font-size: 11px; font-weight: bold; color: #000; margin-top: 12px; padding-top: 6px; border-top: 1px dashed #444; }
-            body:not(.karigar-mode) .hide-on-print, body:not(.karigar-mode) .hide-on-print * { display: none !important; height: 0 !important; margin: 0 !important; padding: 0 !important; }
-            body.karigar-mode .hasab-section, body.karigar-mode .hasab-title, body.karigar-mode .print-note { display: none !important; }
-            body.karigar-mode .pemaish-container { display: flex !important; flex-direction: row !important; justify-content: space-between !important; width: 100% !important; }
-            body.karigar-mode .pemaish-col { width: 48% !important; }
-            .basic-info { display: flex !important; flex-wrap: wrap !important; flex-direction: row !important; }
-            .basic-info .row, .hasab-section .row, .pemaish-col .row { width: 48% !important; margin-bottom: 3px !important; font-size: 11px !important; } 
-            .pemaish-col .row { width: 100% !important; }
-            .row label { width: 45% !important; font-size: 11px !important; } 
-        .row select, .row input[type="date"], .row input { 
-    width: 52% !important; 
-    font-size: 11px !important; 
-    padding: 2px 4px !important; 
-    border: 1px solid #aaa !important; 
-    background: transparent !important; 
-    -webkit-appearance: none !important; 
-    -moz-appearance: none !important; 
-    appearance: none !important; 
+    html, body {
+    width: 100% !important;
+    height: 100% !important;
+    background-color: #000000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden !important;
+}
+        body { 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    background: #000000 !important; /* بیک گراؤنڈ بالکل کالا کر دیں */
+    padding: 0; 
+    margin: 0; 
+    overflow-x: hidden !important; /* سکرین کو دائیں بائیں ہلنے سے روکنے کے لیے */
 }
 
-        }
+        
+#loginOverlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100% !important; /* 100dvh کی بجائے 100% کریں */
+    min-height: -webkit-fill-available !important; /* موبائل سفاری اور کروم کے لیے */
+    background: radial-gradient(circle at 50% 25%, #1a1a1a, #0d0d0d, #000000);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 20px;
+    backdrop-filter: blur(16px);
+    overflow-y: auto;
+}
+
+.login-card {
+    background: linear-gradient(145deg, rgba(20, 20, 20, 0.95), rgba(30, 30, 30, 0.98));
+    backdrop-filter: blur(30px);
+    padding: 55px 40px 40px 40px;
+    border-radius: 36px;
+    border: 2.5px solid transparent;
+    background-image: linear-gradient(145deg, rgba(20, 20, 20, 0.95), rgba(30, 30, 30, 0.98)), linear-gradient(90deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+    box-shadow: 0 50px 100px rgba(0, 0, 0, 0.9), 0 0 60px rgba(212, 175, 55, 0.15);
+    width: 100%;
+    max-width: 470px;
+    text-align: center;
+    position: relative;
+    box-sizing: border-box;
+    margin: auto; /* سکرین پر بالکل سینٹر رکھنے کے لیے */
+}
+
+@keyframes luxuryZoom {
+    0% { opacity: 0; transform: translateY(35px) scale(0.9); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* پرانی اوپر والی پٹی والا کوڈ ختم کر دیا گیا ہے کیونکہ اب پورا بارڈر گولڈن ہو چکا ہے */
+
+.login-brand-icon {
+    margin: 0 auto 24px auto;
+    background-color: #000000;
+    width: 135px !important;
+    height: 135px !important;
+    min-width: 135px !important;
+    min-height: 135px !important;
+    border-radius: 32px !important;
+    box-shadow: 0 15px 35px rgba(212, 175, 55, 0.25);
+    border: 2px solid #d4af37;
+    overflow: hidden !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.4s ease;
+}
+
+.login-brand-icon:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 20px 40px rgba(212, 175, 55, 0.4);
+    border-color: #fcf6ba;
+}
+
+.login-brand-icon img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+    display: block !important;
+}
+
+.login-card h2 {
+    margin: 0 0 6px 0 !important;
+    color: #fcf6ba !important;
+    font-size: 28px !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.5px;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+}
+
+.login-card p.subtitle {
+    margin: 0 0 30px 0 !important;
+    color: #a3a3a3 !important;
+    font-size: 14px !important;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.login-field {
+    margin-bottom: 22px;
+    text-align: left;
+}
+
+.login-field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: #d4af37;
+    margin-bottom: 8px;
+    letter-spacing: 0.5px;
+}
+
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.input-wrapper i:first-child {
+    position: absolute;
+    left: 18px;
+    color: #737373;
+    font-size: 17px;
+    transition: color 0.3s ease;
+    z-index: 2;
+}
+
+.input-wrapper i.fa-eye, 
+.input-wrapper i.fa-eye-slash {
+    position: absolute;
+    right: 18px;
+    left: auto;
+    color: #737373;
+    font-size: 17px;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    z-index: 2;
+}
+
+.login-field input {
+    width: 100%;
+    padding: 15px 48px 15px 48px;
+    border: 2px solid #333333;
+    border-radius: 14px;
+    box-sizing: border-box;
+    font-size: 15px;
+    outline: none;
+    background: #121212;
+    direction: ltr;
+    text-align: left;
+    color: #ffffff;
+    transition: all 0.3s ease;
+}
+
+.login-field input::placeholder {
+    color: #525252;
+}
+
+.login-field input:focus {
+    border-color: #d4af37;
+    background: #1a1a1a;
+    box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.15);
+}
+
+.login-field input:focus ~ i {
+    color: #d4af37;
+}
+
+.login-btn {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #bf953f, #aa771c, #d4af37);
+    color: #000000;
+    border: none;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    margin-top: 14px;
+    box-shadow: 0 10px 25px rgba(170, 119, 28, 0.4);
+    transition: all 0.3s ease;
+    letter-spacing: 1px;
+}
+
+.login-btn:hover {
+    background: linear-gradient(135deg, #fcf6ba, #bf953f);
+    transform: translateY(-2px);
+    box-shadow: 0 15px 35px rgba(212, 175, 55, 0.6);
+}
+
+.login-btn:active {
+    transform: translateY(0);
+}
+
+#loginError {
+    color: #fca5a5;
+    background: rgba(153, 27, 27, 0.2);
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(252, 165, 165, 0.4);
+    font-weight: 600;
+    font-size: 13px;
+    margin-top: 15px;
+    display: none;
+    animation: shake 0.4s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-6px); }
+    40%, 80% { transform: translateX(6px); }
+}
+
+/* مین فارم کی سیٹنگز */
+.receipt { 
+    display: none; 
+    position: relative; 
+    max-width: 1100px; 
+    width: 95%; 
+    margin: 20px auto; 
+    background: #ffffff; 
+    padding: 25px; 
+    border: 1px solid #dcdcdc; 
+    border-radius: 8px; 
+    box-sizing: border-box; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+}
+
+.logout-btn {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 12px;
+    z-index: 10;
+}
+
+.top-actions-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.header { 
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important; 
+    border-bottom: 2px dashed #333; 
+    padding-bottom: 10px; 
+    margin-bottom: 20px; 
+    position: relative !important; 
+    padding-left: 60px !important;  /* بائیں طرف اتنی جگہ دی تاکہ دائیں والے کیو آر کا توازن برابر ہو جائے */
+    padding-right: 60px !important; 
+    box-sizing: border-box;
+}
+.header h3 {
+    font-size: 18px !important;
+    margin: 5px 0 !important;
+}
+
+.owner-name {
+    font-size: 16px;
+    font-weight: bold;
+    color: #000;
+    margin-bottom: 4px;
+    text-align: center !important;
+}
+
+.header .phone-container { 
+    display: inline-block !important; 
+    margin: 0 auto !important; 
+    text-align: center !important; 
+}
+
+.header .phone-num { 
+    position: relative !important; /* آئیکن کو کنٹرول کرنے کے لیے */
+    margin: 3px 0 !important; 
+    font-weight: bold; 
+    color: #444; 
+    font-size: 14px; 
+    display: block !important; 
+    direction: ltr !important; 
+    text-align: center !important; /* نمبر بالکل سنٹر میں رہیں گے */
+}
+
+.whatsapp-icon { 
+    position: absolute !important; 
+    right: -28px !important; /* نمبر سے ذرا ہٹ کر آگے دائیں سائیڈ پر چلا جائے گا */
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    color: #25D366; 
+    font-size: 17px; 
+}
+
+.icon-spacer { 
+    width: 16px; 
+    display: inline-block; 
+}
+
+
+.form-grid { display: flex; flex-wrap: wrap; justify-content: space-between; }
+.row { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 14px; }
+.row label { font-weight: bold; width: 42%; color: #34495e; }
+.row input, .row select { width: 55%; padding: 7px 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; background-color: #fafafa; }
+.section-title { width: 100%; background: #34495e; color: #ffffff; font-weight: bold; text-align: center; padding: 8px; margin: 15px 0 12px 0; font-size: 15px; border-radius: 4px; box-sizing: border-box; }
+.btn { width: 100%; padding: 12px; background: #27ae60; color: white; border: none; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; border-radius: 5px; }
+.print-note { display: none; }
+.pemaish-container { display: flex; width: 100%; justify-content: space-between; flex-wrap: wrap; }
+
+.location-qr-container { 
+    position: absolute !important; 
+    top: 80px !important; 
+    right: 30px !important; 
+    text-align: center;
+    background: #fff;
+    padding: 4px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    z-index: 5;
+}
+.location-qr-container img { width: 75px; height: 75px; display: block; }
+.location-qr-container span { font-size: 9px; font-weight: bold; color: #333; display: block; margin-top: 2px; }
+
+@media (min-width: 769px) {
+    .pemaish-col { 
+        width: 48% !important; 
+        display: flex !important; 
+        flex-wrap: wrap !important; 
+        justify-content: space-between !important; 
+    }
+    .basic-info .row { width: 48% !important; }
+    .basic-info { display: flex; flex-wrap: wrap; justify-content: space-between; width: 100%; }
+    
+    .pemaish-container { 
+        display: flex !important; 
+        flex-wrap: wrap !important; 
+        justify-content: space-between !important; 
+        width: 100% !important; 
+    }
+    
+    .pemaish-col .row { 
+        width: 100% !important; 
+        display: flex !important; 
+        justify-content: space-between !important; 
+        align-items: center !important; 
+        margin-bottom: 10px !important; 
+    }
+    .pemaish-col .row label { 
+        width: 42% !important; 
+        font-weight: bold !important;
+        color: #34495e !important;
+    }
+    .pemaish-col .row input, 
+    .pemaish-col .row select { 
+        width: 55% !important; 
+        padding: 7px 10px !important; 
+        border: 1px solid #ccc !important; 
+        border-radius: 4px !important; 
+        box-sizing: border-box !important; 
+        font-size: 14px !important; 
+        background-color: #fafafa !important; 
+    }
+}
+
+@media (max-width: 768px) { 
+    .receipt { max-width: 100%; padding: 12px; margin: 0 auto; position: relative !important; } 
+    .logout-btn { position: static; margin-bottom: 10px; padding: 6px 12px; font-size: 11px; width: auto; float: left; }
+    
+    .receipt { 
+        max-width: 100%; 
+        padding: 12px; 
+        margin: 0 auto; 
+        position: relative !important; 
+    } 
+    
+    .logout-btn { 
+        position: static; 
+        margin-bottom: 10px; 
+        padding: 6px 12px; 
+        font-size: 11px; 
+        width: auto; 
+        float: left; 
+    }
+    
+    /* موبائل پر کیو آر کوڈ کی پوزیشن */
+    .location-qr-container { 
+        position: absolute !important; 
+        top: 10px !important; 
+        right: 6px !important; 
+        width: 48px !important;
+        float: none !important;
+        margin: 0 !important; 
+        padding: 2px !important;
+    }
+    
+    .location-qr-container img { 
+        width: 42px !important; 
+        height: 42px !important; 
+        display: block !important; 
+        margin: 0 auto !important; 
+    }
+    
+    .location-qr-container span { 
+        font-size: 5px !important; 
+        margin-top: 1px !important; 
+        text-align: center !important; 
+    }
+
+    /* موبائل پر ہیڈر کو بالکل سینٹر اور نارمل رکھیں */
+   .header { 
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important; 
+        border-bottom: 2px dashed #333; 
+        padding-bottom: 10px; 
+        margin-bottom: 20px; 
+        position: relative !important; 
+        padding-left: 45px !important;  /* بائیں طرف اتنی ہی جگہ چھوڑی ہے جتنی دائیں طرف کیو آر کوڈ کی ہے تاکہ نام بالکل عین درمیان میں آ جائے */
+        padding-right: 45px !important; 
+        box-sizing: border-box;
+    }
+
+    .header h3 { 
+        font-size: 15px !important; 
+        line-height: 1.3; 
+        margin-top: 5px; 
+        white-space: nowrap !important; /* نام کو ایک ہی لائن میں رکھے گا */
+    } 
+
+    .pemaish-container { 
+        flex-direction: column !important; 
+    }
+    
+    .pemaish-col { 
+        width: 100% !important; 
+    }
+    
+    .row { 
+        width: 100% !important; 
+        margin-bottom: 8px; 
+    } 
+    
+    .row label { 
+        width: 40%; 
+        font-size: 13px; 
+    } 
+    
+    .row input, .row select { 
+        width: 58%; 
+        font-size: 13px; 
+        padding: 5px; 
+    } 
+
+@media print { 
+   #loginOverlay, #appSplashScreen { 
+        display: none !important; }
+        html, body {
+        overflow: visible !important;
+        height: auto !important;
+        background: #ffffff !important;
+        background-color: #ffffff !important;
+    }
+    @page { size: A5 portrait; margin: 5mm;0mm; 0mm;0mm;} 
+    body { background: #fff; padding: 0; margin: 0; -webkit-print-color-adjust: exact; }
+    .btn, .no-print, .logout-btn { display: none !important; } 
+    .receipt { display: block !important; border: none !important; width: 100% !important; max-width: 100% !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; } 
+    .header { padding-bottom: 5px; margin-bottom: 8px; padding-left: 0 !important; padding-right: 35px !important; text-align: center !important; clear: both !important; }
+    .header h3 { font-size: 16px !important; }
+.location-qr-container { position: absolute !important; top: 30px !important;right: 0 !important; padding: 2px !important; float: none !important; width: 80px !important; height: 90px !important;}
+    .location-qr-container img { width: 80px !important; height: 80px !important; }
+    .section-title { padding: 3px; margin: 6px 0; font-size: 12px; background: #34495e !important; color: #fff !important; }
+    .empty-field-print { display: none !important; }
+    body:not(.karigar-mode) .print-note { display: block !important; text-align: center; font-size: 11px; font-weight: bold; color: #000; margin-top: 12px; padding-top: 6px; border-top: 1px dashed #444; }
+    body:not(.karigar-mode) .hide-on-print, body:not(.karigar-mode) .hide-on-print * { display: none !important; height: 0 !important; margin: 0 !important; padding: 0 !important; }
+    body.karigar-mode .hasab-section, body.karigar-mode .hasab-title, body.karigar-mode .print-note { display: none !important; }
+    body.karigar-mode .pemaish-container { display: flex !important; flex-direction: row !important; justify-content: space-between !important; width: 100% !important; }
+    body.karigar-mode .pemaish-col { width: 48% !important; }
+    .basic-info { display: flex !important; flex-wrap: wrap !important; flex-direction: row !important; }
+    .basic-info .row, .hasab-section .row, .pemaish-col .row { width: 48% !important; margin-bottom: 3px !important; font-size: 11px !important; } 
+    .pemaish-col .row { width: 100% !important; }
+    .row label { width: 45% !important; font-size: 11px !important; } 
+    .row select, .row input[type="date"], .row input { 
+        width: 52% !important; 
+        font-size: 11px !important; 
+        padding: 2px 4px !important; 
+        border: 1px solid #aaa !important; 
+        background: transparent !important; 
+        -webkit-appearance: none !important; 
+        -moz-appearance: none !important; 
+        appearance: none !important; 
+    }
+}
+
     </style>
     <link rel="manifest" href="manifest.json">
-
+ 
 </head>
-<body>
+<body><div id="appSplashScreen" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #000000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 99999; transition: opacity 0.5s ease;">
+        <img src="logo.png" alt="BURSA FABRICS AND TAILOR" style="max-width: 220px; width: 60%; height: auto; margin-bottom: 20px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
+        <h2 style="color: #d4af37; font-family: sans-serif; letter-spacing: 1px; margin: 0; font-size: 22px; text-align: center;"> </h2>
+    </div>
+
+        <script>
+        // جیسے ہی پیج لوڈ ہو، یہ اسپلش اسکرین کچھ دیر رکے گی پھر غائب ہوگی
+        window.addEventListener('load', () => {
+            const splash = document.getElementById('appSplashScreen');
+            if (splash) {
+                // یہاں ٹائم دیں کہ لوگو کتنی دیر تک سکرین پر نظر آئے (مثلاً 2000 کا مطلب 2 سیکنڈ ہے)
+                setTimeout(() => {
+                    splash.style.opacity = '0'; // یہاں سے غائب ہونا شروع ہوگا
+                    
+                    setTimeout(() => {
+                        splash.style.display = 'none'; // مکمل طور پر ہٹ جائے گا
+                    }, 500); // یہ فڈ آؤٹ ہونے کا ٹائم ہے (آدھا سیکنڈ)
+                    
+                }, 200); // <--- اس نمبر کو بڑھا کر یا کم کر کے آپ رکنے کا وقت بدل سکتے ہیں
+            }
+        });
+    </script>
 
 <!-- لاگ ان اسکرین -->
 <div id="loginOverlay">
     <div class="login-card">
+<div id="loginNetworkBadge" style="position: absolute !important; top: 15px !important; left: 15px !important; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; white-space: nowrap; z-index: 10;">
+    🟢 آن لائن
+</div>
 
            <!-- لوگو کا حصہ (Base64 کے ذریعے) -->
         <div class="login-brand-icon">
@@ -321,25 +581,15 @@
         </div>
 
 <div class="login-field">
-    <label style="display: block; margin-bottom: 5px;">پاس ورڈ (Password):</label>
-    
-    <!-- یہ ایک مکمل سیل فنڈڈ فیلڈ ہے جس پر باہر کی کوئی CSS اثر نہیں کرے گی -->
-    <div style="display: flex; align-items: center; width: 100%; background: #ffffff; border: 1px solid #ccc; border-radius: 6px; padding: 0 12px; box-sizing: border-box;">
-        
-        <!-- 1. بائیں طرف لاک آئیکن -->
-        <i class="fa-solid fa-lock" style="color: #666; font-size: 16px; margin-left: 5px; margin-right: 12px; flex-shrink: 0;"></i>
-        
-        <!-- 2. پاسورڈ ان پٹ (جو درمیان میں خود بخود فٹ ہو جائے گا) -->
-        <input type="password" id="passInput" placeholder="Password درج کریں" style="flex: 1; border: none !important; outline: none !important; background: transparent !important; padding: 12px 0 !important; font-size: 16px !important; width: 100%; box-shadow: none !important;" autocomplete="current-password">
-        
-        <!-- 3. دائیں طرف کٹی ہوئی آنکھ کا بٹن -->
-        <span id="togglePassword" style="cursor: pointer; user-select: none; color: #666; font-size: 16px; padding-left: 10px; flex-shrink: 0; display: flex; align-items: center;">
-            <i class="fa-solid fa-eye-slash" id="eyeIcon"></i>
-        </span>
-
+    <label>پاس ورڈ (Password)</label>
+    <div class="input-wrapper">
+        <i class="fas fa-lock"></i> <!-- یہاں لاک والا آئکن آ جائے گا -->
+        <input type="password" id="passInput"placeholder="Password درج کریں">
+        <!-- اگر پاس ورڈ شو/ہائڈ کرنے والا بٹن ہے تو اسے یہاں رکھ سکتے ہیں -->
+        <i class="fas fa-eye" id="togglePassword" style="left: auto; right: 18px; cursor: pointer;"></i>
     </div>
-    
 </div>
+
 
         <button class="login-btn" onclick="checkLogin()">
             <i class="fa-solid fa-right-to-bracket" style="margin-left: 6px;"></i> لاگ ان کریں
@@ -355,30 +605,85 @@
     </div>
     
 </div>
-
-
-<div class="receipt" id="mainReceipt">
-    <button type="button" class="logout-btn no-print" onclick="logout()">
-        <i class="fa-solid fa-right-from-bracket"></i> لاگ آؤٹ
-    </button>
-<div class="location-qr-container">
-    <img src="qrcode.png" alt="Shop QR Code">
-    <span>ایڈریس کیو آر</span>
+<!-- کسٹم خوبصورت الرٹ ماڈل -->
+<div id="customAlertModal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); z-index: 10000; justify-content: center; align-items: center;">
+    <div style="background: #1e293b; color: #ffffff; padding: 25px 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); width: 90%; max-width: 350px; text-align: center; border: 1px solid rgba(255,255,255,0.1);">
+        
+        <div style="font-size: 40px; margin-bottom: 10px;">⚠️</div>
+        <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #f8fafc;">انٹرنیٹ کنکشن</h3>
+        <p id="customAlertMessage" style="margin: 0 0 20px 0; font-size: 14px; color: #94a3b8; line-height: 1.5;">لاگ ان کرنے کے لیے براہ کرم پہلے انٹرنیٹ آن کریں!</p>
+        
+        <button onclick="closeCustomAlert()" style="background: #3b82f6; color: white; border: none; padding: 10px 25px; font-size: 14px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold;">ٹھیک ہے (OK)</button>
+    </div>
 </div>
 
-    <div class="header">
+ 
+<div class="receipt" id="mainReceipt">
+<div class="top-actions-container" style="display: flex; align-items: center; justify-content: flex-start; gap: 8px; margin-bottom: 20px; direction: ltr; width: 100%;">
+    <!-- لاگ آؤٹ بٹن -->
+    <button type="button" class="logout-btn no-print" onclick="logout()" style="position: static !important; margin: 0 !important;">
+        <i class="fa-solid fa-right-from-bracket"></i> لاگ آؤٹ
+    </button>
+
+    <!-- نیٹ ورک انڈیکیٹر (align-items: center کی وجہ سے یہ خود بخود بالکل برابر ہو جائے گا) -->
+    <div id="networkStatusBadge" class="no-print" style="padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; white-space: nowrap; margin: 0 !important;">
+        🟢 آن لائن
+    </div>
+</div>
+
+<script>
+function checkNet() {
+    const badge = document.getElementById('networkStatusBadge');
+    if (!badge) {
+        // اگر ایلیمنٹ ابھی نہیں ملا تو ایک سیکنڈ بعد دوبارہ کوشش کرے گا
+        setTimeout(checkNet, 500);
+        return;
+    }
+
+    if (navigator.onLine) {
+        badge.style.backgroundColor = "#d4edda";
+        badge.style.color = "#155724";
+        badge.style.borderColor = "#c3e6cb";
+        badge.innerHTML = "🟢 آن لائن";
+    } else {
+        badge.style.backgroundColor = "#f8d7da";
+        badge.style.color = "#721c24";
+        badge.style.borderColor = "#f5c6cb";
+        badge.innerHTML = "🔴 آف لائن";
+    }
+}
+
+// پیج لوڈ ہوتے ہی چیک کریں
+window.addEventListener('DOMContentLoaded', checkNet);
+window.addEventListener('online', checkNet);
+window.addEventListener('offline', checkNet);
+
+// فوری کال تاکہ انتظار نہ کرنا پڑے
+checkNet();
+</script>
+<!-- کیو آر کوڈ ہیڈر کے اندر ہی رہے گا -->
+    <div class="location-qr-container">
+        <img src="qrcode.png" alt="Shop QR Code">
+        <span>ایڈریس کیو آر</span>
+    </div>
+<div class="header">
+
+
+    <!-- دکان کی معلومات -->
+    <div class="header-content">
         <h3>BURSA FABRICS AND TAILOR</h3>
+        <div class="owner-name">رانا عامر شمشاد</div>
         <div class="phone-container">
-            <p class="phone-num">
-                <i class="fab fa-whatsapp whatsapp-icon"></i>
+            <div class="phone-num">
                 <span>03451530130</span>
-            </p>
-            <p class="phone-num">
-                <span class="icon-spacer"></span>
+                <a href="https://wa.me/923451530130" target="_blank"><i class="fab fa-whatsapp whatsapp-icon"></i></a>
+            </div>
+            <div class="phone-num">
                 <span>03041530130</span>
-            </p>
+            </div>
         </div>
     </div>
+</div>
 
     <!-- سرچ بار -->
     <div class="no-print" style="background: #eef2f3; padding: 12px; margin-bottom: 15px; border-radius: 6px; text-align: center; border: 1px solid #d5dbdb;">
@@ -401,14 +706,15 @@
             <div class="row"><label>فون نمبر:</label><input type="text" id="phone"></div>
             <div class="row"><label>بکنگ تاریخ:</label><input type="date" id="bookingDate"></div>
             <div class="row"><label>واپسی تاریخ:</label><input type="date" id="returnDate"></div>
-            <div class="row"><label>سلائی:</label><select id="stitching"><option value="سنگل">سنگل</option><option value="ڈبل">ڈبل</option></select></div>
+            <div class="row"><label>سلائی:</label><select id="stitching"><option value="سنگل">سنگل</option><option value="ڈبل">ڈبل</option><option value="ٹرپل">ٹرپل</option></select></div>
+
              
             <div class="row">
-                <label>اسٹیٹس:</label>
+                        <label>اسٹیٹس:</label>
                 <select id="suitStatus">
                     <option value="جاری">جاری ہے </option>
-                    <option value="مکمل">مکمل ہو گیا </option>
-                </select>
+                    <option value="مکمل">مکمل ہو گیا </option> 
+                </select> 
             </div>
             <div class="row">
                 <label>سوٹ کی تعداد:</label>
@@ -496,9 +802,37 @@
         </div>
 
         <button type="button" class="btn no-print" style="background: #27ae60;" onclick="saveData()">ڈیٹا محفوظ کریں / اپ ڈیٹ کریں</button>
-        <button type="button" class="btn no-print" style="background: #e67e22;" onclick="printReceipt()">پرنٹ کریں (کسٹمر)</button>
-        <button type="button" class="btn no-print" style="background: #2980b9;" onclick="printKarigar()">پرنٹ کاریگر</button>
-        <button type="button" class="btn no-print" style="background: #25D366;" onclick="sendWhatsApp()">واٹس ایپ پر میسج بھیجیں</button>
+
+
+<div style="display: flex; gap: 1; width: 100%; margin-bottom: 0px;" class="no-print">
+        <!-- پرنٹ کاریگر - اب یہ دائیں طرف ہوگا اور دائیں کونے گول ہوں گے -->
+    <button type="button" class="btn" style="flex: 1; background: #2980b9; color: white; padding: 12px 5px; border: none; border-radius: 0 5px 5px 0; cursor: pointer; font-size: 15px; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 6px;" onclick="printKarigarReceipt()">
+        <i class="fa-solid fa-print"></i> پرنٹ کاریگر
+    </button>
+
+    <!-- پرنٹ کریں (کسٹمر) - اب یہ بائیں طرف ہوگا اور بائیں کونے گول ہوں گے -->
+    <button type="button" class="btn" style="flex: 1; background: #e67e22; color: white; padding: 12px 5px; border: none; border-radius: 5px 0 0 5px; cursor: pointer; font-size: 15px; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 6px; border-right: 1px solid rgba(255,255,255,0.3);" onclick="printCustomerReceipt()">
+        <i class="fa-solid fa-print"></i> پرنٹ (کسٹمر)
+    </button>
+
+
+</div>
+
+<!-- واٹس ایپ اور ایس ایم ایس کے جڑے ہوئے بٹن (بغیر کسی فاصلے کے) -->
+<div style="display: flex; gap: 0; width: 100%; margin-bottom: 10px;" class="no-print">
+        <!-- واٹس ایپ والا بٹن - دائیں طرف -->
+    <button type="button" class="btn" style="flex: 1; background: #25D366; color: white; padding: 12px 5px; border: none; border-radius: 0 5px 5px 0; cursor: pointer; font-size: 15px; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 6px;" onclick="sendWhatsAppMessage()">
+        <i class="fab fa-whatsapp"></i> واٹس ایپ
+    </button>
+
+    <!-- ایس ایم ایس والا بٹن - بائیں طرف -->
+    <button type="button" class="btn" style="flex: 1; background: #007bff; color: white; padding: 12px 5px; border: none; border-radius: 5px 0 0 5px; cursor: pointer; font-size: 15px; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 6px; border-right: 1px solid rgba(255,255,255,0.3);" onclick="sendSMSMessage()">
+        <i class="fa-solid fa-message"></i> ایس ایم ایس
+    </button>
+
+
+</div>
+
         <button type="button" class="btn no-print" style="background: #c0392b;" onclick="resetForm()"><i class="fa-solid fa-rotate-right" style="margin-left: 5px;"></i> فارم صاف کریں / ریفریش</button>
 <div class="no-print" style="text-align: center; margin-top: 20px; font-size: 13px; color: #777; user-select: none;">
     Powered by <b>Rana Fayyaz Ahmad</b>
@@ -554,6 +888,17 @@ auth.onAuthStateChanged((user) => {
     }
 });
 
+// کسٹم الرٹ شو اور بند کرنے کے فنکشنز
+function showCustomAlert(message) {
+    document.getElementById('customAlertMessage').innerText = message;
+    document.getElementById('customAlertModal').style.display = 'flex';
+}
+
+function closeCustomAlert() {
+    document.getElementById('customAlertModal').style.display = 'none';
+}
+
+// آپ کا اپڈیٹ شدہ چیک لاگ ان فنکشن (جس میں navigator.onLine موجود ہے)
 function checkLogin() {
     let u = document.getElementById('userInput').value.trim();
     let p = document.getElementById('passInput').value.trim();
@@ -561,48 +906,31 @@ function checkLogin() {
 
     if (!u || !p) {
         err.style.display = 'block';
+        err.innerText = "برائے مہربانی تمام خانے پُر کریں۔";
         return;
     }
 
-    let savedUser = localStorage.getItem('bursa_auth_user');
-    let savedPass = localStorage.getItem('bursa_auth_pass');
-
-    // اگر انٹرنیٹ نہیں ہے تو لوکل اسٹوریج سے پاس ورڈ چیک کریں
+    // 🔴 یہاں navigator.onLine چیک کر رہا ہے کہ نیٹ ہے یا نہیں
     if (!navigator.onLine) {
-        if (savedUser === u && savedPass === p) {
-            err.style.display = 'none';
-            document.getElementById('loginOverlay').style.display = 'none';
-            document.getElementById('mainReceipt').style.display = 'block';
-            document.getElementById('userInput').value = '';
-            document.getElementById('passInput').value = '';
-            return;
-        } else {
-            err.style.display = 'block';
-            return;
-        }
+        showCustomAlert("⚠️ لاگ ان کرنے کے لیے براہ کرم پہلے انٹرنیٹ آن کریں!");
+        err.style.display = 'none';
+        return;
     }
 
     let fakeEmail = u + "@bursafabrics.com";
 
     auth.signInWithEmailAndPassword(fakeEmail, p)
         .then((userCredential) => {
-            // آن لائن لاگ ان کامیاب ہونے پر پاس ورڈ سیو کر لیں ताकि آف لائن کام آئے
-            localStorage.setItem('bursa_auth_user', u);
-            localStorage.setItem('bursa_auth_pass', p);
-
             err.style.display = 'none';
+            document.getElementById('loginOverlay').style.display = 'none';
+            document.getElementById('mainReceipt').style.display = 'block';
             document.getElementById('userInput').value = '';
             document.getElementById('passInput').value = '';
         })
         .catch((error) => {
             console.error(error);
-            if (savedUser === u && savedPass === p) {
-                err.style.display = 'none';
-                document.getElementById('loginOverlay').style.display = 'none';
-                document.getElementById('mainReceipt').style.display = 'block';
-            } else {
-                err.style.display = 'block';
-            }
+            err.style.display = 'block';
+            err.innerText = "غلط یوزر نیم یا پاس ورڈ!";
         });
 }
 
@@ -704,14 +1032,14 @@ function restoreEmptyFields() {
     });
 }
 
-function printReceipt() {
+function printCustomerReceipt() {
     document.body.classList.remove('karigar-mode');
     hideEmptyFields();
     window.print();
     setTimeout(() => { restoreEmptyFields(); }, 1000);
 }
 
-function printKarigar() {
+function printKarigarReceipt() {
     document.body.classList.add('karigar-mode');
     hideEmptyFields();
     window.print();
@@ -720,6 +1048,22 @@ function printKarigar() {
         restoreEmptyFields();
     }, 1000);
 }
+// 🌟 گلوبل ویری ایبل اور اتھنٹیکیشن لسنر کو فائل کے سب سے اوپر رکھیں
+let currentAuthUser = null;
+
+firebase.auth().onAuthStateChanged((user) => {
+    currentAuthUser = user; // یہ فائر بیس کا سیشن خود بخود سیو کر لے گا
+    if (user) {
+        console.log("🟢 فائر بیس یوزر ایکٹیو ہے:", user.email || user.uid);
+        if (typeof setupCustomersListener === 'function') setupCustomersListener();
+        if (typeof syncPendingData === 'function') syncPendingData();
+    } else {
+        console.log("🔴 کوئی یوزر لاگ ان نہیں ہے");
+        if (typeof displayCustomers === 'function') {
+            displayCustomers();
+        }
+    }
+});
 
 function saveData() {
     let nameElement = document.getElementById('name');
@@ -743,7 +1087,7 @@ function saveData() {
     }
 
     let formData = {
-        key: cleanPh + "_" + name, // یونیک کی موبائل اور نام کو ملا کر بنے گی
+        key: cleanPh + "_" + name,
         name: name,
         phone: phone,
         cleanPhone: cleanPh,
@@ -784,10 +1128,13 @@ function saveData() {
         panchaDesign: document.getElementById('panchaDesign').value,
         totalAmount: document.getElementById('totalAmount').value,
         advanceAmount: document.getElementById('advanceAmount').value,
-        remainingAmount: document.getElementById('remainingAmount').value
+        remainingAmount: document.getElementById('remainingAmount').value,
+
+        // 🌟 سب سے اہم فلیگ: یہ بتائے گا کہ یہ ڈیٹا ابھی فائر بیس پر سنک ہونا باقی ہے
+        synced: false,
+        pendingSync: true 
     };
 
-    // چیک کریں کہ کیا لوکل اسٹوریج میں بالکل یہی موبائل نمبر اور یہی نام پہلے سے موجود ہے؟
     let localCustomers = JSON.parse(localStorage.getItem('bursa_customers') || '[]');
     let existingIndex = localCustomers.findIndex(c => c.cleanPhone === cleanPh && c.name.toLowerCase() === name.toLowerCase());
     
@@ -798,17 +1145,34 @@ function saveData() {
     } else {
         localCustomers.push(formData);
     }
+    
+    // سب سے پہلے لوکل سٹوریج میں محفوظ کریں تاکہ ڈیٹا کسی صورت ضائع نہ ہو
     localStorage.setItem('bursa_customers', JSON.stringify(localCustomers));
 
-    // فائر بیس میں نیسٹڈ طریقے سے محفوظ کریں
-    try {
+    // فائر بیس پر بھیجنے کی کوشش کریں (صرف تب جب یوزر مکمل طور پر ویریفائی ہو چکا ہو)
+        // 🌟 اب گلوبل ویری ایبل چیک کریں گے جو ہمیشہ اپ ڈیٹ رہتا ہے
+    if (currentAuthUser && navigator.onLine) {
         let firebasePath = 'customers/' + cleanPh + '/' + name;
-        db.ref(firebasePath).set(formData);
-    } catch (e) {
-        console.log("Firebase offline sync pending...");
+        db.ref(firebasePath).set(formData).then(() => {
+            console.log("✅ فائر بیس پر کامیابی سے محفوظ ہو گیا:", name);
+            let updatedList = JSON.parse(localStorage.getItem('bursa_customers') || '[]');
+            let idx = updatedList.findIndex(c => c.cleanPhone === cleanPh && c.name.toLowerCase() === name.toLowerCase());
+            if(idx >= 0) {
+                updatedList[idx].synced = true;
+                delete updatedList[idx].pendingSync;
+                localStorage.setItem('bursa_customers', JSON.stringify(updatedList));
+            }
+        }).catch(err => {
+            console.log("⚠️ فائر بیس سنک پینڈنگ:", err.message);
+        });
+    } else {
+        console.log("⏳ اتھنٹیکیشن لوڈ ہو رہی ہے یا آف لائن ہیں: ڈیٹا لوکل محفوظ کر لیا گیا ہے۔");
     }
 
-    // شرط کے مطابق میسج دکھائیں
+    if (typeof displayCustomers === 'function') {
+        displayCustomers();
+    }
+
     if (isUpdate) {
         alert("ڈیٹا کامیابی سے اپ ڈیٹ ہو گیا ہے! 🔄");
     } else {
@@ -955,12 +1319,48 @@ function onCustomerSelected() {
     document.getElementById('advanceAmount').value = customer.advanceAmount || '';
     document.getElementById('remainingAmount').value = customer.remainingAmount || '';
 }
+// جیسے ہی سوٹ کی تعداد بدلے، ڈراپ ڈاؤن کے الفاظ خود بخود سیٹ ہو جائیں
+document.getElementById('suitQty').addEventListener('input', updateStatusDropdown);
+document.getElementById('suitQty').addEventListener('change', updateStatusDropdown);
 
-function sendWhatsApp() {
+function updateStatusDropdown() {
+    let suitsCount = document.getElementById('suitQty').value.trim();
+    let count = parseInt(suitsCount) || 1;
+    
+    let statusSelect = document.getElementById('suitStatus');
+    if (!statusSelect) return;
+
+    if (count > 1) {
+        // جب سوٹ ایک سے زیادہ ہوں
+        statusSelect.options[0].text = "تیار ہو رہے ہیں";
+        statusSelect.options[0].value = "تیار ہو رہے ہیں";
+        
+        statusSelect.options[1].text = "مکمل ہو گئے ہیں";
+        statusSelect.options[1].value = "مکمل ہو گئے ہیں";
+    } else {
+        // جب سوٹ صرف ایک ہو
+        statusSelect.options[0].text = "تیار ہو رہا ہے";
+        statusSelect.options[0].value = "تیار ہو رہا ہے";  // اب یہاں بھی ہو بہو وہی متن آئے گا
+        
+        statusSelect.options[1].text = "مکمل ہو گیا ہے";
+        statusSelect.options[1].value = "مکمل ہو گیا ہے"; // یہاں بھی ویلیو مکمل ٹیکسٹ کر دی گئی ہے
+    }
+}
+
+// جب صفحہ لوڈ ہو تب بھی یہ چیک کر لے
+window.onload = function() {
+    updateStatusDropdown();
+};
+
+function sendWhatsAppMessage() {
     let phone = document.getElementById('phone').value.trim();
-    let name = document.getElementById('name') ? document.getElementById('name').value.trim() : '';
     let returnDate = document.getElementById('returnDate').value.trim();
     let remaining = document.getElementById('remainingAmount').value.trim() || '0';
+    let suitsCount = document.getElementById('suitQty') ? document.getElementById('suitQty').value.trim() : '1';
+    
+    // اسٹیٹس والے خانے سے ویلیو حاصل کی جا رہی ہے
+    let orderStatusEl = document.getElementById('suitStatus');
+    let orderStatus = orderStatusEl ? orderStatusEl.value.trim() : '';
 
     if (!phone) {
         alert("واٹس ایپ پر بھیجنے کے لیے فون نمبر موجود ہونا ضروری ہے!");
@@ -972,10 +1372,62 @@ function sendWhatsApp() {
         cleanPh = '92' + cleanPh.substring(1);
     }
 
-    let msg = `السلام علیکم! آپ کا سوٹ BURSA FABRICS AND TAILOR پر تیار ہو رہا ہے۔ واپسی کی تاریخ: ${returnDate} ہے۔ بقایا رقم: ${remaining} روپے ہے۔ شکریہ!`;
+    let suitText = (parseInt(suitsCount) > 1) ? `آپ کے ${suitsCount} سوٹ` : `آپ کا سوٹ`;
+
+    let statusMessage = orderStatus ? orderStatus : "تیار ہو رہا ہے";
+
+    // یہاں ہم چیک کر رہے ہیں کہ آیا اسٹیٹس میں 'مکمل' کا لفظ موجود ہے یا نہیں
+    let isCompleted = orderStatus.includes('مکمل') || orderStatus.includes('مکمّل');
+
+    let msg = "";
+    if (isCompleted) {
+        // اگر کام مکمل ہو گیا ہے تو تاریخ کی بجائے "آ کے وصول کر لیں" آئے گا
+        msg = `السلام علیکم! ${suitText} BURSA FABRICS AND TAILOR پر ${statusMessage}۔ برائے مہربانی تشریف لا کر وصول کر لیں! بقایا رقم: ${remaining} روپے ہیں۔ شکریہ!`;
+    } else {
+        // اگر ابھی کام مکمل نہیں ہوا تو پرانے طریقے سے تاریخ شو ہوگی
+        msg = `السلام علیکم! ${suitText} BURSA FABRICS AND TAILOR پر ${statusMessage}۔ واپسی کی تاریخ: ${returnDate} ہے۔ بقایا رقم: ${remaining} روپے ہیں۔ شکریہ!`;
+    }
+
     let url = `https://wa.me/${cleanPh}?text=${encodeURIComponent(msg)}`;
     window.open(url, '_blank');
 }
+
+function sendSMSMessage() {
+    let phone = document.getElementById('phone').value.trim();
+    let returnDate = document.getElementById('returnDate').value.trim();
+    let remaining = document.getElementById('remainingAmount').value.trim() || '0';
+    let suitsCount = document.getElementById('suitQty') ? document.getElementById('suitQty').value.trim() : '1';
+    
+    // اسٹیٹس والے خانے سے ویلیو حاصل کی جا رہی ہے
+    let orderStatusEl = document.getElementById('suitStatus');
+    let orderStatus = orderStatusEl ? orderStatusEl.value.trim() : '';
+
+    if (!phone) {
+        alert("میسج بھیجنے کے لیے فون نمبر موجود ہونا ضروری ہے!");
+        return;
+    }
+
+    let suitText = (parseInt(suitsCount) > 1) ? `آپ کے ${suitsCount} سوٹ` : `آپ کا سوٹ`;
+
+    // اگر خانے میں کچھ نہیں لکھا تو ڈیفالت اسٹیٹس آئے گا
+    let statusMessage = orderStatus ? orderStatus : "تیار ہو رہا ہے";
+
+    // یہاں چیک کیا جا رہا ہے کہ آیا کام مکمل ہو چکا ہے یا نہیں
+    let isCompleted = orderStatus.includes('مکمل') || orderStatus.includes('مکمّل');
+
+    let msg = "";
+    if (isCompleted) {
+        // اگر کام مکمل ہو گیا ہے تو تاریخ کی بجائے وصول کرنے کا کہا جائے گا
+        msg = `السلام علیکم! ${suitText} BURSA FABRICS AND TAILOR پر ${statusMessage}۔ برائے مہربانی تشریف لا کر وصول کر لیں! بقایا رقم: ${remaining} روپے ہیں۔ شکریہ!`;
+    } else {
+        // اگر کام جاری ہے تو اسٹیٹس اور واپسی کی تاریخ آئے گی
+        msg = `السلام علیکم! ${suitText} BURSA FABRICS AND TAILOR پر ${statusMessage}۔ واپسی کی تاریخ: ${returnDate} ہے۔ بقایا رقم: ${remaining} روپے ہیں۔ شکریہ!`;
+    }
+
+    let url = `sms:${phone}?body=${encodeURIComponent(msg)}`;
+    window.location.href = url;
+}
+
 
 // جب بھی پیج لوڈ ہو، فائر بیس سے سارا ڈیٹا لوکل اسٹوریج میں سنک کر لیں
 window.addEventListener('DOMContentLoaded', () => {
@@ -1058,185 +1510,179 @@ document.addEventListener('click', function(e) {
         dropdown.style.display = 'none';
     }
 });
+
+
+// 2. مین رئیل ٹائم سنک فنکشن
 function startRealtimeSync() {
-    firebase.auth().onAuthStateChanged((user) => {
-        if (user) {
-            // 1. فائر بیس سے ریل ٹائم لسنر
-            db.ref('customers').on('value', (snapshot) => {
-                let fbCustomers = [];
-                
-                snapshot.forEach((phoneSnapshot) => {
-                    phoneSnapshot.forEach((nameSnapshot) => {
-                        let data = nameSnapshot.val();
-                        if (data) {
-                            fbCustomers.push(data);
-                        }
-                    });
-                });
+    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+        .then(() => {
+            let immediateUser = firebase.auth().currentUser;
+            if (immediateUser) {
+                setupCustomersListener();
+                return;
+            }
 
-                if (fbCustomers.length > 0) {
-                    let localCustomers = JSON.parse(localStorage.getItem('bursa_customers') || '[]');
-                    let mergedMap = new Map();
-
-                    localCustomers.forEach(c => {
-                        let uniqueKey = c.cleanPhone + "_" + c.name.toLowerCase();
-                        mergedMap.set(uniqueKey, c);
-                    });
-
-                    fbCustomers.forEach(fbC => {
-                        let uniqueKey = (fbC.cleanPhone || cleanNumber(fbC.phone)) + "_" + fbC.name.toLowerCase();
-                        if (!mergedMap.has(uniqueKey)) {
-                            mergedMap.set(uniqueKey, fbC);
-                        }
-                    });
-
-                    let finalCustomersList = Array.from(mergedMap.values());
-                    localStorage.setItem('bursa_customers', JSON.stringify(finalCustomersList));
+            firebase.auth().onAuthStateChanged((user) => {
+                if (user) {
+                    setupCustomersListener();
+                } else {
+                    if (typeof displayCustomers === 'function') {
+                        displayCustomers();
+                    }
                 }
             });
-        }
-    });
+        })
+        .catch((error) => {
+            console.log("❌ پرسٹینس ایرر:", error);
+        });
 }
 
-function startRealtimeSync() {
-    firebase.auth().onAuthStateChanged((user) => {
-        if (user) {
-            // فائر بیس سرور سے لائیو کنکشن چیک
-            db.ref('.info/connected').on('value', (snap) => {
-                if (snap.val() === true) {
-                    pushNestedOfflineDataToFirebase();
-                }
-            });
-
-            // ریل ٹائم سنک (فائر بیس اور لوکل اسٹوریج کو بالکل برابر رکھنے کے لیے)
-            db.ref('customers').on('value', (snapshot) => {
-                let fbCustomers = [];
-                
-                snapshot.forEach((phoneSnapshot) => {
-                    phoneSnapshot.forEach((nameSnapshot) => {
-                        let data = nameSnapshot.val();
-                        if (data) {
-                            fbCustomers.push(data);
-                        }
-                    });
-                });
-
-                // اگر فائر بیس پر ڈیٹا موجود ہے (یا ڈیٹا بیس خالی نہیں ہے)
-                // تو لوکل اسٹوریج کو بالکل فائر بیس کے مطابق سیٹ کر دیں
-                let localCustomers = JSON.parse(localStorage.getItem('bursa_customers') || '[]');
-                let mergedMap = new Map();
-
-                // 1. پہلے فائر بیس والا سارا تازہ ڈیٹا میپ میں ڈالیں
-                fbCustomers.forEach(fbC => {
-                    let uniqueKey = (fbC.cleanPhone || cleanNumber(fbC.phone)) + "_" + fbC.name.toLowerCase();
-                    mergedMap.set(uniqueKey, fbC);
-                });
-
-                // 2. وہ آف لائن لوکل کسٹمرز جو ابھی فائر بیس پر نہیں گئے (نیا ڈیٹا)، انہیں بھی شامل رکھیں تاکہ وہ ضائع نہ ہوں
-                localCustomers.forEach(localC => {
-                    let uniqueKey = localC.cleanPhone + "_" + localC.name.toLowerCase();
-                    let existsInFirebase = fbCustomers.some(fbC => 
-                        (fbC.cleanPhone || cleanNumber(fbC.phone)) === localC.cleanPhone && 
-                        fbC.name.toLowerCase() === localC.name.toLowerCase()
-                    );
-
-                    // اگر یہ لوکل کسٹمر فائر بیس پر نہیں ہے، تو اسے عارضی طور پر لوکل میں رہنے دیں
-                    if (!existsInFirebase && !mergedMap.has(uniqueKey)) {
-                        mergedMap.set(uniqueKey, localC);
+function setupCustomersListener() {
+    db.ref('customers').on('value', (snapshot) => {
+        let fbCustomersMap = new Map();
+        
+        // 1. فائر بیس کا تمام ڈیٹا میپ میں لائیں
+        if (snapshot.exists()) {
+            snapshot.forEach((phoneSnapshot) => {
+                phoneSnapshot.forEach((nameSnapshot) => {
+                    let data = nameSnapshot.val();
+                    if (data && data.name) {
+                        let cleanPh = data.cleanPhone || (typeof cleanNumber === 'function' && data.phone ? cleanNumber(data.phone) : (data.phone || ''));
+                        data.cleanPhone = cleanPh;
+                        data.synced = true;
+                        delete data.pendingSync; 
+                        let uniqueKey = cleanPh + "_" + data.name.toLowerCase();
+                        fbCustomersMap.set(uniqueKey, data);
                     }
                 });
-
-                // حتمی لسٹ بنائیں
-                let finalCustomersList = Array.from(mergedMap.values());
-
-                // --- سب سے اہم تبدیلی (ڈیلیشن سنک) ---
-                // اگر فائر بیس پر کوئی کسٹمر ڈیلیٹ ہو چکا ہے، تو وہ فائر بیس کی لسٹ (fbCustomers) میں نہیں ہوگا۔
-                // ہم چیک کریں گے کہ جو فائر بیس پر نہیں ہے، اسے لوکل اسٹوریج سے بھی ہٹا دیا جائے۔
-                let syncedList = finalCustomersList.filter(item => {
-                    let itemKey = (item.cleanPhone || cleanNumber(item.phone)) + "_" + item.name.toLowerCase();
-                    // اگر یہ فائر بیس پر موجود ہے یا پھر یہ کوئی نیا آف لائن کسٹمر ہے جو ابھی فائر بیس پر نہیں گیا، تو رکھو
-                    let isInFirebase = fbCustomers.some(fbC => 
-                        (fbC.cleanPhone || cleanNumber(fbC.phone)) === (item.cleanPhone || cleanNumber(item.phone)) && 
-                        fbC.name.toLowerCase() === item.name.toLowerCase()
-                    );
-                    let isLocalNew = !isInFirebase; // نیا آف لائن کسٹمر
-                    
-                    return isInFirebase || isLocalNew;
-                });
-
-                // اگر فائر بیس سے کوئی چیز اڑی ہے تو وہ یہاں خود بخود فلٹر ہو جائے گی
-                localStorage.setItem('bursa_customers', JSON.stringify(fbCustomers));
-                console.log("ڈیٹا سنک اور ڈیلیشن اپ ڈیٹ ہو گئی ہے! ✅");
             });
         }
-    });
-}
 
-// آف لائن ڈیٹا کو فائر بیس پر دھکیلنے کا فنکشن
-function pushNestedOfflineDataToFirebase() {
-    let localCustomers = JSON.parse(localStorage.getItem('bursa_customers') || '[]');
-    
-    localCustomers.forEach(localC => {
-        let cleanPh = localC.cleanPhone || cleanNumber(localC.phone);
-        let name = localC.name;
+        let localCustomers = JSON.parse(localStorage.getItem('bursa_customers') || '[]');
+        let finalMap = new Map();
 
-        if (cleanPh && name) {
-            let firebasePath = 'customers/' + cleanPh + '/' + name;
-            
-            db.ref(firebasePath).once('value', (snapshot) => {
-                if (!snapshot.exists()) {
+        // 2. فائر بیس کا سارا ڈیٹا فائنل لسٹ میں ڈالیں
+        fbCustomersMap.forEach((fbC, key) => {
+            finalMap.set(key, fbC);
+        });
+
+        // 3. لوکل ڈیٹا کا جائزہ لیں
+        localCustomers.forEach(localC => {
+            if (!localC || !localC.name) return;
+            let cPhone = localC.cleanPhone || (typeof cleanNumber === 'function' && localC.phone ? cleanNumber(localC.phone) : (localC.phone || ''));
+            localC.cleanPhone = cPhone;
+            let uniqueKey = cPhone + "_" + localC.name.toLowerCase();
+
+            // اگر یہ فائر بیس پر موجود ہے تو ٹھیک ہے
+            if (fbCustomersMap.has(uniqueKey)) {
+                return;
+            }
+
+            // 🛡️ انتہائی محفوظ شرط: اگر اس ڈیٹا پر pendingSync یا synced: false لگا ہے، تو فائر بیس پر نہ ہونے کے باوجود اسے ہرگز ڈیلیٹ نہ کریں!
+            if (localC.pendingSync === true || localC.synced === false || !localC.synced) {
+                finalMap.set(uniqueKey, localC);
+                console.log("🛡️ محفوظ آف لائن ڈیٹا (ڈیلیٹ ہونے سے بچایا گیا):", localC.name);
+                
+                // جیسے ہی نیٹ اور لاگ ان بحال ہو، اسے فائر بیس پر بھی پش کر دیں
+                let currentUser = firebase.auth().currentUser;
+                if (currentUser && navigator.onLine) {
+                    let firebasePath = 'customers/' + cPhone + '/' + localC.name;
                     db.ref(firebasePath).set(localC).then(() => {
-                        console.log("آف لائن ڈیٹا فائر بیس پر پش ہو گیا:", name);
-                    });
+                        localC.synced = true;
+                        delete localC.pendingSync;
+                        localStorage.setItem('bursa_customers', JSON.stringify(Array.from(finalMap.values())));
+                        console.log("🚀 پینڈنگ ڈیٹا فائر بیس پر سنک ہو گیا:", localC.name);
+                    }).catch(e => console.log("Sync retry failed:", e.message));
                 }
-            });
+                return;
+            }
+
+            // 🗑️ ڈیلیشن صرف تب ہوگی جب وہ پہلے سے 100% سنک شدہ تھا اور اب فائر بیس سے باقاعدہ ڈیلیٹ کیا جا چکا ہے
+            console.log("🗑️ فائر بیس سے ڈیلیٹ شدہ ڈیٹا لوکل سے ہٹا دیا گیا:", localC.name);
+        });
+
+        let finalCustomersList = Array.from(finalMap.values());
+        localStorage.setItem('bursa_customers', JSON.stringify(finalCustomersList));
+        
+        if (typeof displayCustomers === 'function') {
+            displayCustomers();
         }
+
+        console.log("✅ ڈیٹا سنک اور تحفظ کا مرحلہ مکمل ہو گیا!");
     });
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-    startRealtimeSync();
-
-    window.addEventListener('online', () => {
-        setTimeout(pushNestedOfflineDataToFirebase, 1000);
-    });
-});
-
-// جیسے ہی انٹرنیٹ بحال ہو، فورا سنک کو متحرک کریں
-window.addEventListener('online', () => {
-    console.log("انٹرنیٹ آن ہو گیا ہے، آف لائن ڈیٹا سنک کیا جا رہا ہے...");
-    startRealtimeSync();
-});
 
 </script> <!-- یہاں آپ کی فائل کا آخری اسکرپٹ ٹیگ بند ہو رہا ہوگا -->
 <script>
-
+document.addEventListener("DOMContentLoaded", function () {
+    // یہاں 'password' کی جگہ 'passInput' کر دیا گیا ہے
     const passwordInput = document.getElementById('passInput');
     const togglePasswordBtn = document.getElementById('togglePassword');
-    const eyeIcon = document.getElementById('eyeIcon');
 
-    // جب صارف آئیکن پر کلک کرے یا دبا کر رکھے (ماوس اور موبائل دونوں کے لیے)
-    togglePasswordBtn.addEventListener('mousedown', showPassword);
-    togglePasswordBtn.addEventListener('touchstart', showPassword);
-
-    // جب صارف کلک یا انگلی ہٹا لے
-    togglePasswordBtn.addEventListener('mouseup', hidePassword);
-    togglePasswordBtn.addEventListener('touchend', hidePassword);
-    togglePasswordBtn.addEventListener('mouseleave', hidePassword);
+    if (!passwordInput || !togglePasswordBtn) return;
 
     function showPassword(e) {
-        e.preventDefault();
+        if (e) e.preventDefault();
         passwordInput.type = 'text';
-        eyeIcon.classList.remove('fa-eye-slash');
-        eyeIcon.classList.add('fa-eye');
+        togglePasswordBtn.classList.remove('fa-eye-slash');
+        togglePasswordBtn.classList.add('fa-eye');
     }
 
     function hidePassword(e) {
-        e.preventDefault();
+        if (e) e.preventDefault();
         passwordInput.type = 'password';
-        eyeIcon.classList.remove('fa-eye');
-        eyeIcon.classList.add('fa-eye-slash');
+        togglePasswordBtn.classList.remove('fa-eye');
+        togglePasswordBtn.classList.add('fa-eye-slash');
     }
+
+    // ہولڈ (Hold) اور ٹچ والے ایونٹس
+    togglePasswordBtn.addEventListener('mousedown', showPassword);
+    togglePasswordBtn.addEventListener('mouseup', hidePassword);
+    togglePasswordBtn.addEventListener('mouseleave', hidePassword);
+
+    togglePasswordBtn.addEventListener('touchstart', function(e) {
+        showPassword(e);
+    }, { passive: false });
+
+    togglePasswordBtn.addEventListener('touchend', function(e) {
+        hidePassword(e);
+    }, { passive: false });
+
+    togglePasswordBtn.addEventListener('touchcancel', function(e) {
+        hidePassword(e);
+    });
+});
+</script>
+
+<script>
+    // نیٹ ورک کا اسٹیٹس چیک کرنے والا فنکشن (یہ لاگ ان پیج پر بھی بالکل ویسے ہی کام کرے گا)
+function updateNetworkStatus() {
+    const badge = document.getElementById('loginNetworkBadge');
+    if (!badge) return;
+
+    if (navigator.onLine) {
+        badge.style.backgroundColor = "#d4edda";
+        badge.style.color = "#155724";
+        badge.style.borderColor = "#c3e6cb";
+        badge.innerHTML = "🟢 آن لائن";
+    } else {
+        badge.style.backgroundColor = "#f8d7da";
+        badge.style.color = "#721c24";
+        badge.style.borderColor = "#f5c6cb";
+        badge.innerHTML = "🔴 آف لائن";
+    }
+}
+
+// براؤزر کے اپنے نیٹ ورک ایونٹس
+window.addEventListener('online', updateNetworkStatus);
+window.addEventListener('offline', updateNetworkStatus);
+
+// جیسے ہی لاگ ان پیج کھلے، یہ فوراً چیک کر لے
+window.addEventListener('DOMContentLoaded', () => {
+    updateNetworkStatus();
+});
+
        </script> 
 <script>
     if ('serviceWorker' in navigator) {
